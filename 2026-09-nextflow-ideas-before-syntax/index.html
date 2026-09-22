@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nextflow: the ideas before the syntax</title>
+<script>
+// Serve the dc-runtime's dependencies from this repo rather than unpkg, so the
+// deck presents with no network. support.js consults window.__resources before
+// reaching for a CDN.
+window.__resources = {
+  "https://unpkg.com/react@18.3.1/umd/react.production.min.js": "vendor/react.production.min.js",
+  "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js": "vendor/react-dom.production.min.js"
+};
+</script>
+<script src="./support.js"></script>
+<script>
+// The thumbnail rail is chrome from the deck editor — it offers drag-reorder
+// and right-click delete, and its only toggle lives in the editor's panel. Turn
+// it off here, once <deck-stage> has been mounted by the runtime.
+(function () {
+  const off = () => {
+    const stages = document.querySelectorAll("deck-stage");
+    stages.forEach((d) => d.setAttribute("no-rail", ""));
+    return stages.length > 0;
+  };
+  if (off()) return;
+  const obs = new MutationObserver(() => { if (off()) obs.disconnect(); });
+  obs.observe(document.documentElement, { subtree: true, childList: true });
+})();
+</script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="theme/tokens.css">
+    <style>
+    body { margin:0; background:#F7F7F7; }
+    a { color:#065647; } a:hover { color:#31C9AC; }
+  </style>
+</helmet><x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1456" height="816" hint-size="100%,100%" data-uneditable="">
+
+<section data-label="Go here first" data-speaker-notes="Holding slide before the talk begins. Get everyone to open training.nextflow.io now so they are ready for the hands-on session." style="background-color:#201637;background-image:url('assets/slide-backgrounds/dark-brand-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px;font-family:var(--slide-font-body);color:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#31C9AC;letter-spacing:0.02em">Before we start, open</p>
+  <div style="margin:0;font-family:var(--sq-font-mono);font-size:96px;font-weight:600;line-height:1.05;color:#FFFFFF;letter-spacing:-0.01em">training.nextflow.io</div>
+</section>
+
+<section data-label="Cover" data-speaker-notes="Preamble before the hands-on day. No syntax today: the handful of ideas that make the syntax make sense." style="background-color:#201637;background-image:url('assets/slide-backgrounds/dark-brand-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 120px 77px;font-family:var(--slide-font-body);color:#FFFFFF;display:flex;flex-direction:column;justify-content:flex-end;gap:20px">
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#31C9AC;letter-spacing:0.02em">Nextflow</p>
+  <h1 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;letter-spacing:-0.01em;color:#FFFFFF;max-width:1100px">The ideas before the syntax</h1>
+  <p style="margin:12px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#FFFFFF;max-width:900px;line-height:1.35">Channels, processes, operators and tasks. A preamble while your codespaces load.</p>
+</section>
+
+<section data-label="What Nextflow offers" data-speaker-notes="Same tool at both ends of the scale. A single researcher gets a way to write the science once and run it anywhere, and to stop a run and pick it up again. An organisation gets pipelines that are portable across infrastructure, provenance for every output, and a shared community of pipelines (nf-core) and people." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">One tool, from a laptop to a pharma fleet</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">The same pipeline serves a single researcher and the largest biotech organisations</p>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:40px;height:520px">
+    <div style="background:#201637;color:#FFFFFF;padding:40px;box-sizing:border-box;display:flex;flex-direction:column;gap:26px">
+      <div style="font-size:var(--slide-card-header);font-weight:700">For a researcher</div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span>●</span><span><strong>Write the science in whatever language it is already in.</strong> Bash, Python, R, a container. Nextflow wires the steps together.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span>●</span><span><strong>Develop iteratively.</strong> Change one step and re-run; everything that already worked is reused, not recomputed.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span>●</span><span><strong>Tight git integration.</strong> Run a stable, tagged analysis while trying out new ideas on a branch.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span>●</span><span><strong>Metadata travels with the data.</strong> Write steps that never have to guess how a file name is constructed.</span></div>
+    </div>
+    <div style="background:#E2F7F3;color:#201637;padding:40px;box-sizing:border-box;display:flex;flex-direction:column;gap:26px">
+      <div style="font-size:var(--slide-card-header);font-weight:700">For an organisation</div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>Portable across infrastructure.</strong> One pipeline runs on every team's compute, so there is one RNA-seq pipeline, not ten. Teams collaborate instead of duplicating.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>Provenance for every output.</strong> Each result is traceable to the exact inputs, parameters and code that produced it.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>Scale by adding samples, not engineers.</strong> One sample and ten thousand samples are the same pipeline.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>A shared vocabulary.</strong> New hires, collaborators and vendors already speak it.</span></div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Chapter: Channels" data-speaker-notes="First idea. Where does the data live while it moves between steps, and how does its metadata travel with it." style="background-color:#E2F7F3;background-image:url('assets/slide-backgrounds/soft-green-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 140px 77px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column;justify-content:flex-end;gap:16px">
+  <p style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-agenda-number);font-weight:200;color:#065647;line-height:1">01</p>
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#201637">Channels</h2>
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#201637">Data and its metadata, travelling together</p>
+</section>
+
+<section data-label="Files and a script" data-speaker-notes="The starting point most people know. A directory of outputs and a script. Ask the room: which of these came from the same run? Which reference was C aligned to? Is A_hg19 a stale leftover? Everything we know about each file is smuggled into its name and its path, and the script has to parse it back out." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">A directory of files and a script</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">Metadata lives in file names and paths, and the script has to parse it back out</p>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 60px minmax(0,1fr);gap:0;margin-top:40px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:28px">
+      <div style="background:#201637;color:#FFFFFF;box-sizing:border-box;padding:24px 28px;font-family:var(--sq-font-mono);font-size:var(--slide-body);line-height:1.8">
+        <div style="color:#31C9AC">for f in results/*.bam; do</div>
+        <div style="padding-left:28px">sample=$(basename $f | cut -d_ -f3)</div>
+        <div style="padding-left:28px">ref=$(basename $f | cut -d_ -f4)</div>
+        <div style="padding-left:28px">call_variants $f $sample $ref</div>
+        <div style="color:#31C9AC">done</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;font-size:var(--slide-body);line-height:1.45">
+        <div style="display:flex;gap:14px"><span style="color:#31C9AC">●</span><span>Which of these came from the same run?</span></div>
+        <div style="display:flex;gap:14px"><span style="color:#31C9AC">●</span><span>Which reference was <span style="font-family:var(--sq-font-mono)">sampleC</span> aligned to, and by whom?</span></div>
+        <div style="display:flex;gap:14px"><span style="color:#31C9AC">●</span><span>The script breaks the moment one file is named differently.</span></div>
+      </div>
+    </div>
+    <div style="position:relative;height:1px;background:#BABCBD;margin-top:100px"><div style="position:absolute;right:-1px;top:-7px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:10px solid #BABCBD"></div></div>
+    <div style="background:#EAEBEB;border:1px solid #DDDEDE;box-sizing:border-box;padding:24px 28px;font-family:var(--sq-font-mono);font-size:var(--slide-body);line-height:1.8;color:#201637">
+      <div style="font-weight:600;margin-bottom:6px">results/</div>
+      <div>run1_2024-03-02_sampleA_hg38_trimmed.bam</div>
+      <div>run1_2024-03-02_sampleB_hg38_trimmed.bam</div>
+      <div>sampleC_hg38_trimmed_v2.bam</div>
+      <div style="color:#736F7D">sampleA_hg19_trimmed.bam</div>
+      <div>run2/sampleD.trimmed.hg38.bam</div>
+      <div style="color:#736F7D">tmp/sampleB_hg38.bam.bak</div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Channels" data-speaker-notes="Same data, as a Nextflow channel. Each item carries its metadata in a structured map next to the files, so nothing has to be parsed out of a name. Items are isolated from each other: sample A cannot see or trample sample B. And the channel is a queue, so a step downstream can start on A while B is still arriving." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">A channel keeps metadata beside the data</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">Each item is one sample: a metadata record, then the files that belong to it</p>
+  <div style="display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:40px;margin-top:36px;align-items:start">
+    <div style="position:relative;height:500px">
+      <div style="position:absolute;left:100px;top:0;width:500px;height:500px;border-left:1px solid #BABCBD;border-right:1px solid #BABCBD;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:22px;padding-top:28px">
+        <div style="position:absolute;left:510px;top:50%;transform:translateY(-50%);font-family:var(--sq-font-mono);font-size:var(--slide-caption);color:#065647;white-space:nowrap">samples</div>
+        <div style="display:flex;height:72px;border:1px solid #201637;background:#FFFFFF;box-sizing:border-box">
+          <div style="width:170px;background:repeating-linear-gradient(135deg,#31C9AC 0 3px,#E2F7F3 3px 9px);display:flex;align-items:center;justify-content:center"><div style="background:#FFFFFF;padding:2px 8px;font-family:var(--sq-font-mono);font-size:var(--slide-caption);font-weight:600;color:#065647;line-height:1.4">id: A<br>ref: hg38</div></div>
+          <div style="width:110px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">A_1.fq.gz</div></div>
+          <div style="width:110px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">A_2.fq.gz</div></div>
+        </div>
+        <div style="display:flex;height:72px;border:1px solid #201637;background:#FFFFFF;box-sizing:border-box">
+          <div style="width:170px;background:repeating-linear-gradient(135deg,#31C9AC 0 3px,#E2F7F3 3px 9px);display:flex;align-items:center;justify-content:center"><div style="background:#FFFFFF;padding:2px 8px;font-family:var(--sq-font-mono);font-size:var(--slide-caption);font-weight:600;color:#065647;line-height:1.4">id: B<br>ref: hg38</div></div>
+          <div style="width:110px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">B_1.fq.gz</div></div>
+          <div style="width:110px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">B_2.fq.gz</div></div>
+        </div>
+        <div style="display:flex;height:72px;border:1px solid #201637;background:#FFFFFF;box-sizing:border-box">
+          <div style="width:170px;background:repeating-linear-gradient(135deg,#31C9AC 0 3px,#E2F7F3 3px 9px);display:flex;align-items:center;justify-content:center"><div style="background:#FFFFFF;padding:2px 8px;font-family:var(--sq-font-mono);font-size:var(--slide-caption);font-weight:600;color:#065647;line-height:1.4">id: C<br>ref: hg38</div></div>
+          <div style="width:110px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">C_1.fq.gz</div></div>
+          <div style="width:110px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">C_2.fq.gz</div></div>
+        </div>
+        <div style="position:absolute;bottom:0;left:50%;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid #BABCBD"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:22px;padding-top:6px">
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>Metadata is a record, not a file name.</strong> The hatched cell holds it. Nothing is parsed; nothing is guessed.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>Samples are isolated.</strong> Each item is its own row. A step working on A never sees B.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>A channel is a queue.</strong> Items enter at the top and leave at the bottom in order, so downstream work starts as soon as the first item arrives.</span></div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Chapter: Processes" data-speaker-notes="Second idea. A process is the unit of work: it takes items off a channel and puts new items onto another." style="background-color:#E2F7F3;background-image:url('assets/slide-backgrounds/soft-green-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 140px 77px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column;justify-content:flex-end;gap:16px">
+  <p style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-agenda-number);font-weight:200;color:#065647;line-height:1">02</p>
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#201637">Processes</h2>
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#201637">Channels in, channels out</p>
+</section>
+
+<section data-label="Processes (animated)" data-speaker-notes="Animation. Start zoomed in on one item: a single FASTA file. Zoom out to see it sitting in a channel above a process. The item drops into the process, and out of the bottom comes a new item: a directory of outputs, coloured green because a process produced it. Then the remaining items follow. The process is the script; the channel is what feeds it." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">A process turns one channel into another</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">Each item that arrives is transformed into a new item on the output channel</p>
+  <div style="flex:1;margin:24px 0 40px 0;min-height:0">
+    <x-import component-from-global-scope="rive-player" from="./rive-player.js" src="assets/nextflow_concepts.riv" artboard="Process" steps="Setup,Run,Zoom in output" hint-size="100%,100%"></x-import>
+  </div>
+</section>
+
+<section data-label="Chapter: Operators" data-speaker-notes="Third idea. Operators reshape channels without running any script. They are how you express 'every sample needs the reference' or 'group these by patient'." style="background-color:#E2F7F3;background-image:url('assets/slide-backgrounds/soft-green-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 140px 77px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column;justify-content:flex-end;gap:16px">
+  <p style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-agenda-number);font-weight:200;color:#065647;line-height:1">03</p>
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#201637">Operators</h2>
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#201637">Reshaping channels without running a script</p>
+</section>
+
+<section data-label="Operators (animated)" data-speaker-notes="Animation. Two channels: three samples on the left, one index on the right. combine pairs every sample with the single index, so three items come out, each carrying its sample files plus the index. No script ran; the items were rearranged. That is all an operator does." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">An operator rearranges items between channels</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637"><span style="font-family:var(--sq-font-mono)">combine</span> pairs every sample with the single reference index</p>
+  <div style="flex:1;margin:24px 0 40px 0;min-height:0">
+    <x-import component-from-global-scope="rive-player" from="./rive-player.js" src="assets/nextflow_concepts.riv" artboard="Combine" steps="Setup,Pair A,Pair B,Pair C" loops="Running,Running,Running," hint-size="100%,100%"></x-import>
+  </div>
+</section>
+
+<section data-label="Chapter: Tasks" data-speaker-notes="Fourth idea. A process is a definition. A task is one execution of it, for one item, in its own directory." style="background-color:#E2F7F3;background-image:url('assets/slide-backgrounds/soft-green-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 140px 77px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column;justify-content:flex-end;gap:16px">
+  <p style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-agenda-number);font-weight:200;color:#065647;line-height:1">04</p>
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#201637">Tasks</h2>
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#201637">One process, many isolated executions</p>
+</section>
+
+<section data-label="Tasks (animated)" data-speaker-notes="Existing animation. Press → to advance: Setup, then Finish B, Finish C, Finish A. Three items reach ALIGN; three tasks start, each in its own work directory. They finish in whatever order the compute allows. Each task sees only its own inputs and writes only its own outputs." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">Every item spawns its own task</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">Tasks run in isolation, in their own work directories, and finish as soon as they are done.</p>
+  <div style="flex:1;margin:24px 0 40px 0;min-height:0">
+    <x-import component-from-global-scope="rive-player" from="./rive-player.js" src="assets/nextflow_concepts.riv" artboard="Tasks" steps="Setup,Finish B,Finish C,Finish A" loops="Running ABC,Running AC,Running A," hint-size="100%,100%"></x-import>
+  </div>
+</section>
+
+<section data-label="Why workflows" data-speaker-notes="Pause here. It is rare for one technology to be genuinely useful at both ends of this spectrum. Most tools serve one end and tax the other: the thing that helps the individual move fast makes life harder for the organisation, and the thing that satisfies the organisation slows the individual down. As a student and post-doc I could rush forward at a million miles an hour in ways that punished my future self and my colleagues. Doing the right thing usually cost me something in the moment, so I often did not do it. Nextflow was the first approach that helped me right then, and at the same time made my work accessible and useful to my colleagues and to my future self. That is what the rest of these slides are about: the same four ideas, seen from each end." style="background-color:#201637;background-image:url('assets/slide-backgrounds/dark-brand-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px;font-family:var(--slide-font-body);color:#FFFFFF;display:flex;flex-direction:column;justify-content:center;gap:28px">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#FFFFFF">Why workflows?</h2>
+  <div style="margin-top:20px;display:flex;flex-direction:column;gap:20px">
+    <div style="position:relative;height:2px;background:#31C9AC">
+      <div style="position:absolute;left:0;top:-7px;border-top:8px solid transparent;border-bottom:8px solid transparent;border-right:12px solid #31C9AC"></div>
+      <div style="position:absolute;right:0;top:-7px;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:12px solid #31C9AC"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:var(--slide-card-header);font-weight:700;color:#FFFFFF">
+      <div>For a researcher</div>
+      <div>For an organisation</div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Chapter: For a researcher" data-speaker-notes="With the four ideas in hand, what they buy a single researcher." style="background-color:#E2F7F3;background-image:url('assets/slide-backgrounds/soft-green-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 140px 77px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column;justify-content:flex-end;gap:16px">
+  <p style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-agenda-number);font-weight:200;color:#065647;line-height:1">05</p>
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#201637">For a researcher</h2>
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#201637">Polyglot · Iterative · Versioned · Metadata-aware</p>
+</section>
+
+<section data-label="Polyglot" data-speaker-notes="A process wraps a script. The script can be in anything. Nobody rewrites their R in Python to fit the workflow; the workflow fits around the tools." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">Write the science in the language it is already in</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">Each process wraps one script; the pipeline does not care which language</p>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:44px">
+    <div style="display:flex;flex-direction:column">
+      <div style="height:44px;background:#201637;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:var(--sq-font-mono);font-size:var(--slide-body);font-weight:600;letter-spacing:0.04em">TRIM</div>
+      <div style="background:#F7F7F7;border:1px solid #DDDEDE;border-top:0;box-sizing:border-box;padding:20px 24px;font-family:var(--sq-font-mono);font-size:var(--slide-caption);line-height:1.8;height:200px">
+        <div style="color:#736F7D">#!/usr/bin/env bash</div>
+        <div>fastp -i ${reads[0]} \</div>
+        <div style="padding-left:24px">-I ${reads[1]} \</div>
+        <div style="padding-left:24px">-o ${meta.id}_1.fq.gz \</div>
+        <div style="padding-left:24px">-O ${meta.id}_2.fq.gz</div>
+      </div>
+      <div style="margin-top:12px;font-size:var(--slide-body);color:#065647">Bash</div>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <div style="height:44px;background:#201637;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:var(--sq-font-mono);font-size:var(--slide-body);font-weight:600;letter-spacing:0.04em">COUNT</div>
+      <div style="background:#F7F7F7;border:1px solid #DDDEDE;border-top:0;box-sizing:border-box;padding:20px 24px;font-family:var(--sq-font-mono);font-size:var(--slide-caption);line-height:1.8;height:200px">
+        <div style="color:#736F7D">#!/usr/bin/env python</div>
+        <div>import pysam</div>
+        <div>bam = pysam.AlignmentFile("${bam}")</div>
+        <div>counts = count_reads(bam)</div>
+        <div>counts.to_csv("${meta.id}.csv")</div>
+      </div>
+      <div style="margin-top:12px;font-size:var(--slide-body);color:#065647">Python</div>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <div style="height:44px;background:#201637;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:var(--sq-font-mono);font-size:var(--slide-body);font-weight:600;letter-spacing:0.04em">DESEQ</div>
+      <div style="background:#F7F7F7;border:1px solid #DDDEDE;border-top:0;box-sizing:border-box;padding:20px 24px;font-family:var(--sq-font-mono);font-size:var(--slide-caption);line-height:1.8;height:200px">
+        <div style="color:#736F7D">#!/usr/bin/env Rscript</div>
+        <div>library(DESeq2)</div>
+        <div>dds &lt;- DESeqDataSetFromMatrix(...)</div>
+        <div>res &lt;- results(DESeq(dds))</div>
+        <div>write.csv(res, "de.csv")</div>
+      </div>
+      <div style="margin-top:12px;font-size:var(--slide-body);color:#065647">R</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:48px;margin-top:40px;font-size:var(--slide-body);line-height:1.45">
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>Existing scripts become processes with almost no change. The tool you trust stays the tool you run.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>Each process brings its own container or conda environment, so R and Python dependencies never collide.</span></div>
+  </div>
+</section>
+
+<section data-label="Iterative development" data-speaker-notes="This is what resume buys day to day. Edit one process, run again. Everything upstream is cached; only the edited step and what depends on it runs. Development cycles go from hours to minutes." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">Change one step and re-run only that step</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">Finished work is cached; an edit re-runs the edited process and whatever depends on it</p>
+  <div style="flex:1;margin:24px 0 40px 0;min-height:0">
+    <x-import component-from-global-scope="rive-player" from="./rive-player.js" src="assets/nextflow_concepts.riv" artboard="Resume" steps="Setup,Run 1,Prep 2,Run 2,Prep 3,Run 3,Prep 4,Run 4" hint-size="100%,100%"></x-import>
+  </div>
+</section>
+
+<section data-label="Git integration" data-speaker-notes="A pipeline is a git repository. Nextflow runs it straight from the repo at any tag, branch or commit. The production run is pinned to a tag; the experiment is a branch. Same repo, two lines, nothing copied." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637;display:flex;align-items:center;gap:20px">Nextflow <span style="color:#E5484D;font-size:0.85em">♥</span> <svg width="58" height="58" viewBox="0 0 97 97" aria-label="Git" style="flex:none"><path fill="#F05033" d="M92.71 44.41 52.59 4.29a5.7 5.7 0 0 0-8.06 0l-8.33 8.33 10.56 10.57a6.77 6.77 0 0 1 8.58 8.63l10.18 10.19a6.78 6.78 0 1 1-4.06 3.82L52 36.3v26.21a6.78 6.78 0 1 1-5.58-.2V35.87a6.78 6.78 0 0 1-3.68-8.9L32.34 16.56 4.29 44.6a5.7 5.7 0 0 0 0 8.06l40.12 40.12a5.7 5.7 0 0 0 8.06 0l39.9-39.9a5.7 5.7 0 0 0 .34-8.47Z"></path></svg></h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">A pipeline can be a git repository; every run knows which revision was used</p>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:44px">
+    <div style="background:#201637;color:#FFFFFF;padding:32px 36px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px">
+      <div style="font-size:var(--slide-card-header);font-weight:700">Stable</div>
+      <div style="font-family:var(--sq-font-mono);font-size:var(--slide-body);line-height:1.7"><span style="color:#31C9AC">$</span> nextflow run acme-rx/rnaseq <span style="color:#31C9AC">-r v2.3.0</span></div>
+      <div style="font-size:var(--slide-body);line-height:1.45;color:#FFFFFF">Pinned to a tag. Every sample this quarter goes through exactly this code.</div>
+    </div>
+    <div style="background:#E2F7F3;color:#201637;padding:32px 36px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px">
+      <div style="font-size:var(--slide-card-header);font-weight:700">Experimental</div>
+      <div style="font-family:var(--sq-font-mono);font-size:var(--slide-body);line-height:1.7"><span style="color:#065647">$</span> nextflow run acme-rx/rnaseq <span style="color:#065647">-r try-salmon</span></div>
+      <div style="font-size:var(--slide-body);line-height:1.45">A branch. Same repository, same samples, a different aligner. Merge it when it earns its place.</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:48px;margin-top:44px;font-size:var(--slide-body);line-height:1.45">
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>No copies of the pipeline on disk to drift apart. The repository is the pipeline.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>The run log records the commit, so any result can be traced to the exact code that produced it.</span></div>
+  </div>
+</section>
+
+<section data-label="Metadata handling" data-speaker-notes="Back to the channel idea. Because metadata rides along as a record, the process script asks for meta.id, meta.strandedness, and so on. It never splits a file name. Rename the input files and nothing breaks." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">Processes never guess how a file name is built</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">The script reads metadata from the item, not from the path</p>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 220px minmax(0,1fr);gap:0;margin-top:56px;align-items:center">
+    <div style="display:flex;justify-content:flex-end">
+      <div style="display:flex;height:96px;border:1px solid #201637;background:#FFFFFF;box-sizing:border-box">
+        <div style="width:220px;background:repeating-linear-gradient(135deg,#31C9AC 0 3px,#E2F7F3 3px 9px);display:flex;align-items:center;justify-content:center"><div style="background:#FFFFFF;padding:4px 10px;font-family:var(--sq-font-mono);font-size:var(--slide-caption);font-weight:600;color:#065647;line-height:1.5">id: A<br>ref: hg38<br>strand: reverse</div></div>
+        <div style="width:120px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">L001_R1.fq.gz</div></div>
+        <div style="width:120px;border-left:1px dashed #201637;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><svg width="18" height="22" viewBox="0 0 18 22" fill="#FFFFFF" stroke="#201637" stroke-width="1.5" stroke-linejoin="round"><path d="M1 1h10l6 6v14H1z"></path><path d="M11 1v6h6" fill="none"></path></svg><div style="font-family:var(--sq-font-mono);font-size:11px;color:#736F7D;line-height:1">L001_R2.fq.gz</div></div>
+      </div>
+    </div>
+    <div style="position:relative;height:1px;background:#BABCBD;margin:0 20px"><div style="position:absolute;right:-1px;top:-7px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:10px solid #BABCBD"></div></div>
+    <div style="background:#201637;color:#FFFFFF;box-sizing:border-box;padding:24px 28px;font-family:var(--sq-font-mono);font-size:var(--slide-body);line-height:1.8">
+      <div style="color:#31C9AC">process ALIGN {</div>
+      <div style="padding-left:28px">input: tuple val(<span style="color:#31C9AC">meta</span>), path(reads)</div>
+      <div style="padding-left:28px">script:</div>
+      <div style="padding-left:28px">"""</div>
+      <div style="padding-left:28px">star --id <span style="color:#31C9AC">${meta.id}</span> \</div>
+      <div style="padding-left:56px">--strand <span style="color:#31C9AC">${meta.strand}</span> \</div>
+      <div style="padding-left:56px">--genome <span style="color:#31C9AC">${meta.ref}</span> ${reads}</div>
+      <div style="padding-left:28px">"""</div>
+      <div style="color:#31C9AC">}</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:48px;margin-top:56px;font-size:var(--slide-body);line-height:1.45">
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>A name is not a contract. One underscore in a sample ID, a renamed file, a new sequencer convention, and the parsing silently returns the wrong field.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>Add a field to the metadata and every downstream process can use it, with no renaming.</span></div>
+  </div>
+</section>
+
+<section data-label="Chapter: For an organisation" data-speaker-notes="The same ideas, seen from the organisation's side." style="background-color:#E2F7F3;background-image:url('assets/slide-backgrounds/soft-green-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 140px 77px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column;justify-content:flex-end;gap:16px">
+  <p style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-agenda-number);font-weight:200;color:#065647;line-height:1">06</p>
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#201637">For an organisation</h2>
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#201637">Portable · Scalable · Traceable · Shared</p>
+</section>
+
+<section data-label="Portability" data-speaker-notes="The pipeline says what to run; a config profile says where. The same repository runs on a laptop, on Slurm, on AWS Batch. That is what stops every team from writing their own RNA-seq pipeline for their own cluster." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">One RNA-seq pipeline, not ten</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">The pipeline describes the work; a profile describes the machines</p>
+  <div style="display:flex;align-items:center;gap:0;margin-top:64px;justify-content:center">
+    <div style="width:260px;height:150px;background:#201637;color:#FFFFFF;box-sizing:border-box;padding:0 28px;display:flex;flex-direction:column;justify-content:center;gap:8px"><div style="font-family:var(--sq-font-mono);font-size:var(--slide-body);font-weight:600">acme-rx/rnaseq</div><div style="font-family:var(--sq-font-mono);font-size:var(--slide-caption);color:#31C9AC">one repository</div></div>
+    <div style="position:relative;width:120px;height:1px;background:#BABCBD;margin:0 20px"><div style="position:absolute;right:-1px;top:-7px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:10px solid #BABCBD"></div></div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="width:420px;height:64px;background:#E2F7F3;border:1px solid #065647;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-family:var(--sq-font-mono);font-size:var(--slide-body)"><span style="color:#065647">-profile laptop</span><span style="color:#736F7D">local · docker</span></div>
+      <div style="width:420px;height:64px;background:#E2F7F3;border:1px solid #065647;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-family:var(--sq-font-mono);font-size:var(--slide-body)"><span style="color:#065647">-profile hpc</span><span style="color:#736F7D">slurm · singularity</span></div>
+      <div style="width:420px;height:64px;background:#E2F7F3;border:1px solid #065647;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-family:var(--sq-font-mono);font-size:var(--slide-body)"><span style="color:#065647">-profile aws</span><span style="color:#736F7D">batch · s3</span></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:48px;margin-top:72px;font-size:var(--slide-body);line-height:1.45">
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>Teams on different infrastructure contribute to the same pipeline instead of maintaining parallel copies.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>Moving compute, to a new cluster or to the cloud, is a config change, not a rewrite.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>Containers travel with the pipeline, so the software is the same everywhere it runs.</span></div>
+  </div>
+</section>
+
+<section data-label="Scalability" data-speaker-notes="The pipeline does not know how many samples there are. One item or ten thousand items go through the same channels and the same processes; Nextflow schedules the tasks onto whatever compute is available. The graph is the same shape, only wider." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">Just add data</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">One sample and ten thousand samples are the same pipeline; only the number of tasks changes</p>
+  <div style="flex:1;margin:24px 0 32px 0;min-height:0">
+    <x-import component-from-global-scope="rive-player" from="./rive-player.js" src="assets/nextflow_concepts.riv" artboard="Scaling" steps="Setup,Run 3,Run 20,Run batch" hint-size="100%,100%"></x-import>
+  </div>
+  <div style="display:flex;gap:48px;margin:40px 0 80px 0;font-size:var(--slide-body);line-height:1.45">
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>Tasks are scheduled onto whatever compute the profile offers; parallelism is free, not designed in.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span style="color:#31C9AC">●</span><span>A failing task retries or fails alone. The other 9 999 carry on.</span></div>
+  </div>
+</section>
+
+<section data-label="Provenance" data-speaker-notes="Every result in results/ was copied out of a work directory named by a hash. That hash ties it to the exact inputs, parameters and script, and the run log ties the run to a commit. Auditors and reviewers can walk the chain backwards from any file." style="background-color:#201637;background-image:url('assets/slide-backgrounds/dark-brand-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#FFFFFF;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#FFFFFF">Every output traces back to what produced it</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#FFFFFF">Result → task → inputs, parameters, script, commit</p>
+  <div style="display:flex;align-items:center;gap:0;margin-top:80px;justify-content:center">
+    <div style="width:230px;height:120px;background:#E2F7F3;color:#065647;box-sizing:border-box;padding:0 24px;display:flex;flex-direction:column;justify-content:center;gap:6px;font-family:var(--sq-font-mono)"><div style="font-size:var(--slide-caption)">results/</div><div style="font-size:var(--slide-body);font-weight:600;color:#201637">A.bam</div></div>
+    <div style="position:relative;width:60px;height:1px;background:#FFFFFF"><div style="position:absolute;right:-1px;top:-7px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:10px solid #FFFFFF"></div></div>
+    <div style="width:230px;height:120px;background:#FFFFFF;color:#201637;box-sizing:border-box;padding:0 24px;display:flex;flex-direction:column;justify-content:center;gap:6px;font-family:var(--sq-font-mono)"><div style="font-size:var(--slide-caption);color:#736F7D">ALIGN · A</div><div style="font-size:var(--slide-body);font-weight:600">work/a3/f9c1e2</div></div>
+    <div style="position:relative;width:60px;height:1px;background:#FFFFFF"><div style="position:absolute;right:-1px;top:-7px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:10px solid #FFFFFF"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="width:330px;height:48px;background:#FFFFFF;color:#201637;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-family:var(--sq-font-mono);font-size:var(--slide-caption)"><span style="font-weight:600">inputs</span><span style="color:#736F7D;white-space:nowrap">A_*.fq.gz · hg38.idx</span></div>
+      <div style="width:330px;height:48px;background:#FFFFFF;color:#201637;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-family:var(--sq-font-mono);font-size:var(--slide-caption)"><span style="font-weight:600">parameters</span><span style="color:#736F7D">min_score = 20</span></div>
+      <div style="width:330px;height:48px;background:#FFFFFF;color:#201637;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-family:var(--sq-font-mono);font-size:var(--slide-caption)"><span style="font-weight:600">script</span><span style="color:#736F7D">.command.sh</span></div>
+      <div style="width:330px;height:48px;background:#FFFFFF;color:#201637;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-family:var(--sq-font-mono);font-size:var(--slide-caption)"><span style="font-weight:600">commit</span><span style="color:#736F7D">v2.3.0 · 8f1c2d9</span></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:48px;margin-top:80px;font-size:var(--slide-body);line-height:1.45;color:#FFFFFF">
+    <div style="display:flex;gap:14px;flex:1"><span>●</span><span>The chain is recorded as a side effect of running, not assembled afterwards by hand.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span>●</span><span>Reproducing a result means re-running the same commit with the same inputs. Nothing else to remember.</span></div>
+    <div style="display:flex;gap:14px;flex:1"><span>●</span><span>The same record is what lets a run be resumed, so provenance and efficiency come from one mechanism.</span></div>
+  </div>
+</section>
+
+<section data-label="Shared vocabulary" data-speaker-notes="Channels, processes, operators, tasks, modules, profiles: the words are the same in every Nextflow pipeline, at every company, in nf-core. A new hire or a collaborator reads the pipeline on day one. And the nf-core community means most standard analyses already exist as maintained pipelines and modules." style="background-color:#FFFFFF;background-image:url('assets/slide-backgrounds/default-bg.png');background-size:100% 100%;box-sizing:border-box;padding:48px 60px 0 60px;font-family:var(--slide-font-body);color:#201637;display:flex;flex-direction:column">
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-h1);font-weight:500;line-height:1.1;color:#201637">New hires, collaborators and vendors already speak it</h2>
+  <p style="margin:10px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#201637">The same words describe every pipeline, inside the company and across the community</p>
+  <div style="display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:40px;margin-top:44px;align-items:start">
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+      <div style="background:#E2F7F3;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--sq-font-mono);font-size:var(--slide-card-header);color:#065647">channel</div><div style="font-size:var(--slide-caption);line-height:1.4">Items flowing between steps</div></div>
+      <div style="background:#E2F7F3;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--sq-font-mono);font-size:var(--slide-card-header);color:#065647">process</div><div style="font-size:var(--slide-caption);line-height:1.4">A script that turns items into items</div></div>
+      <div style="background:#E2F7F3;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--sq-font-mono);font-size:var(--slide-card-header);color:#065647">operator</div><div style="font-size:var(--slide-caption);line-height:1.4">Reshapes a channel</div></div>
+      <div style="background:#E2F7F3;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--sq-font-mono);font-size:var(--slide-card-header);color:#065647">task</div><div style="font-size:var(--slide-caption);line-height:1.4">One execution of a process</div></div>
+      <div style="background:#E2F7F3;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--sq-font-mono);font-size:var(--slide-card-header);color:#065647">module</div><div style="font-size:var(--slide-caption);line-height:1.4">A reusable, shareable process</div></div>
+      <div style="background:#E2F7F3;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div style="font-family:var(--sq-font-mono);font-size:var(--slide-card-header);color:#065647">profile</div><div style="font-size:var(--slide-caption);line-height:1.4">Where and how it runs</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:22px;padding-top:6px">
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span><strong>nf-core</strong> maintains community pipelines and modules built from these same parts. Most standard analyses already exist.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span>A pipeline written in one group reads the same as one written in another, or one written outside the company.</span></div>
+      <div style="display:flex;gap:14px;font-size:var(--slide-body);line-height:1.45"><span style="color:#31C9AC">●</span><span>Hiring, onboarding and vendor hand-offs start from a shared language rather than a bespoke framework.</span></div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Nextflow Summit" data-speaker-notes="The community side of this, in person. Virtual Nextflow Summit and training online on 13-14 October, then training and the nf-core hackathon in Barcelona on 15-16 October. Scan the code for details." style="background-color:#201637;background-image:url('assets/slide-backgrounds/dark-brand-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px;font-family:var(--slide-font-body);color:#FFFFFF;display:flex;align-items:center;gap:80px">
+  <div style="flex:1;display:flex;flex-direction:column;gap:28px">
+    <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#31C9AC;letter-spacing:0.02em">Join the community</p>
+    <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#FFFFFF">Virtual Nextflow Summit</h2>
+    <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#FFFFFF;line-height:1.35">Nextflow Training &amp; nf-core Hackathon</p>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+      <div style="display:flex;gap:20px;align-items:baseline;border-top:1px solid #4A3F63;padding-top:14px"><span style="font-family:var(--sq-font-mono);font-size:var(--slide-body);color:#31C9AC;width:180px;flex:none">October 13–14</span><span style="font-size:var(--slide-body)">Online</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-top:1px solid #4A3F63;padding-top:14px"><span style="font-family:var(--sq-font-mono);font-size:var(--slide-body);color:#31C9AC;width:180px;flex:none">October 15–16</span><span style="font-size:var(--slide-body)">Barcelona</span></div>
+    </div>
+  </div>
+  <div style="flex:none;display:flex;flex-direction:column;align-items:center;gap:18px">
+    <img src="images/summit-qr.png" alt="QR code linking to Nextflow Summit details" style="width:300px;height:300px;display:block">
+    <div style="font-family:var(--sq-font-mono);font-size:var(--slide-body);color:#31C9AC">summit.nextflow.io</div>
+  </div>
+</section>
+
+<section data-label="Closing" data-speaker-notes="Four ideas: channels carry data with its metadata; processes turn channels into channels; operators reshape channels; tasks are isolated executions. Everything in the workshop is syntax for these." style="background-color:#201637;background-image:url('assets/slide-backgrounds/dark-brand-bg.png');background-size:100% 100%;box-sizing:border-box;padding:0 77px 120px 77px;font-family:var(--slide-font-body);color:#FFFFFF;display:flex;flex-direction:column;justify-content:flex-end;gap:20px">
+  <p style="margin:0;font-size:var(--slide-h2);font-weight:400;color:#31C9AC">Four ideas</p>
+  <h2 style="margin:0;font-family:var(--slide-font-title);font-size:var(--slide-display);font-weight:300;line-height:1.05;color:#FFFFFF">Everything else is syntax</h2>
+  <p style="margin:12px 0 0 0;font-size:var(--slide-h2);font-weight:400;color:#FFFFFF;line-height:1.4">Channels · Processes · Operators · Tasks</p>
+</section>
+
+</x-import>
+
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,262 @@
+/* =========================================================
+   Seqera Design Tokens
+   Single source of truth — derived from seqeralabs/brand
+   ========================================================= */
+
+/* ---------- Degular ----------
+   The licensed brand display font is NOT shipped in this published
+   copy. Decks never use it (see --slide-font-* below), so the token
+   remains only for parity with the full design system and falls
+   through to the system stack. */
+
+/* ---------- Inter (local variable @font-face) ----------
+   Self-hosted Inter variable font, upright only.
+   Supplies weights 100–900 and opsz 14–32. */
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-VariableFont_opsz_wght.ttf") format("truetype-variations"),
+       url("fonts/Inter-VariableFont_opsz_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- JetBrains Mono (local variable @font-face) ----------
+   Self-hosted JetBrains Mono variable font, upright only. */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono_wght_.ttf") format("truetype-variations"),
+       url("fonts/JetBrainsMono_wght_.ttf") format("truetype");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---------- Greens ---------- */
+  --sq-deep-green: #065647;      /* Background / medium-to-large text */
+  --sq-brand-green: #31C9AC;     /* Decorative, buttons, tags — NEVER as text */
+  --sq-soft-green: #E2F7F3;      /* Background */
+
+  /* ---------- Neutrals ---------- */
+  --sq-dark-brand: #201637;      /* Primary text + dark background */
+  --sq-medium-grey: #CFD0D1;     /* Strokes, borders, structural lines */
+  --sq-soft-grey: #F7F7F7;       /* Subtle background */
+  --sq-white: #FFFFFF;
+
+  /* ---------- Derived UI ---------- */
+  --sq-bg: var(--sq-white);
+  --sq-bg-subtle: var(--sq-soft-grey);
+  --sq-text: var(--sq-dark-brand);
+  --sq-text-muted: #5B5370;
+  --sq-border: var(--sq-medium-grey);
+  --sq-border-subtle: #E7E7E9;
+
+  /* ---------- Typography ---------- */
+  --sq-font-display: "Degular", ui-sans-serif, system-ui, sans-serif;
+  --sq-font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --sq-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type scale (1.250 major third) */
+  --sq-text-xs: 12px;
+  --sq-text-sm: 14px;
+  --sq-text-base: 16px;
+  --sq-text-lg: 18px;
+  --sq-text-xl: 20px;
+  --sq-text-2xl: 24px;
+  --sq-text-3xl: 30px;
+  --sq-text-4xl: 38px;
+  --sq-text-5xl: 48px;
+  --sq-text-6xl: 64px;
+  --sq-text-7xl: 84px;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --sq-space-1: 4px;
+  --sq-space-2: 8px;
+  --sq-space-3: 12px;
+  --sq-space-4: 16px;
+  --sq-space-5: 20px;
+  --sq-space-6: 24px;
+  --sq-space-8: 32px;
+  --sq-space-10: 40px;
+  --sq-space-12: 48px;
+  --sq-space-16: 64px;
+  --sq-space-20: 80px;
+  --sq-space-24: 96px;
+
+  /* ---------- Radii ---------- */
+  --sq-radius-sm: 4px;
+  --sq-radius-md: 6px;
+  --sq-radius-lg: 10px;
+  --sq-radius-xl: 16px;
+  --sq-radius-pill: 999px;
+
+  /* ---------- Shadows (restrained) ---------- */
+  --sq-shadow-sm: 0 1px 2px rgba(32, 22, 55, 0.06);
+  --sq-shadow-md: 0 4px 12px rgba(32, 22, 55, 0.08);
+  --sq-shadow-lg: 0 12px 32px rgba(32, 22, 55, 0.10);
+
+  /* ---------- Motion ---------- */
+  --sq-ease: cubic-bezier(0.2, 0.7, 0.2, 1); /* @kind other */
+  --sq-dur-fast: 120ms; /* @kind other */
+  --sq-dur: 200ms; /* @kind other */
+  --sq-dur-slow: 320ms; /* @kind other */
+
+  /* ---------- Grid pattern (brand backdrop) ----------
+     Emulates the Figma "Grid thick" backdrop: thin line grid +
+     subtle crosses at alternating intersections. Apply to any
+     dark surface for brand texture. Flat colors only — no gradients. */
+  --sq-grid-cell: 80px;
+  --sq-grid-line: rgba(255,255,255,0.10);
+  --sq-grid-cross: rgba(255,255,255,0.22);
+}
+
+/* Grid-thick backdrop utility — apply to any dark surface. */
+.sq-grid-bg {
+  background-color: var(--sq-deep-green);
+  background-image:
+    /* crosses (horizontal + vertical strokes) centered on every cell intersection */
+    linear-gradient(to right, var(--sq-grid-cross) 0, var(--sq-grid-cross) 2px, transparent 2px),
+    linear-gradient(to bottom, var(--sq-grid-cross) 0, var(--sq-grid-cross) 2px, transparent 2px),
+    /* thin line grid */
+    linear-gradient(to right, var(--sq-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--sq-grid-line) 1px, transparent 1px);
+  background-size:
+    var(--sq-grid-cell) var(--sq-grid-cell),
+    var(--sq-grid-cell) var(--sq-grid-cell),
+    var(--sq-grid-cell) var(--sq-grid-cell),
+    var(--sq-grid-cell) var(--sq-grid-cell);
+  background-position:
+    calc(var(--sq-grid-cell) / 2 - 6px) calc(var(--sq-grid-cell) / 2 - 1px),
+    calc(var(--sq-grid-cell) / 2 - 1px) calc(var(--sq-grid-cell) / 2 - 6px),
+    0 0,
+    0 0;
+  background-repeat: repeat;
+}
+/* Tone surface colors bound to the utility. */
+.sq-grid-bg--dark,  .sq-grid-bg[data-grid-tone="dark"]  { background-color: var(--sq-dark-brand); }
+.sq-grid-bg--light, .sq-grid-bg[data-grid-tone="light"] { background-color: var(--sq-white); }
+.sq-grid-bg--soft,  .sq-grid-bg[data-grid-tone="soft"]  { background-color: var(--sq-soft-grey); }
+
+/* Grid line/cross are theme tokens — scope the per-tone overrides under
+   a [data-*] selector so they register as design-system tokens.
+   (Add data-grid-tone alongside the variant class, e.g.
+   class="sq-grid-bg sq-grid-bg--light" data-grid-tone="light".) */
+[data-grid-tone="light"] {
+  --sq-grid-line: rgba(32,22,55,0.06);
+  --sq-grid-cross: rgba(32,22,55,0.14);
+}
+[data-grid-tone="soft"] {
+  --sq-grid-line: rgba(32,22,55,0.05);
+  --sq-grid-cross: rgba(32,22,55,0.12);
+}
+
+
+/* =========================================================
+   Base resets + body defaults
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--sq-font-body);
+  font-size: var(--sq-text-base);
+  line-height: 1.55;
+  color: var(--sq-text);
+  background: var(--sq-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--sq-font-display);
+  font-weight: 500;
+  color: var(--sq-dark-brand);
+  letter-spacing: -0.015em;
+  margin: 0;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+h1 { font-size: var(--sq-text-6xl); font-weight: 600; letter-spacing: -0.03em; }
+h2 { font-size: var(--sq-text-4xl); font-weight: 500; letter-spacing: -0.02em; }
+h3 { font-size: var(--sq-text-2xl); font-weight: 500; }
+h4 { font-size: var(--sq-text-lg); font-weight: 600; font-family: var(--sq-font-body); letter-spacing: -0.01em; }
+
+p { margin: 0; text-wrap: pretty; }
+code, kbd, pre { font-family: var(--sq-font-mono); }
+
+a { color: var(--sq-deep-green); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+::selection { background: var(--sq-brand-green); color: var(--sq-dark-brand); }
+
+/* =========================================================
+   Utilities (scoped — no Tailwind collision)
+   ========================================================= */
+.sq-mono { font-family: var(--sq-font-mono); }
+.sq-display { font-family: var(--sq-font-display); }
+.sq-muted { color: var(--sq-text-muted); }
+.sq-eyebrow {
+  font-family: var(--sq-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--sq-deep-green);
+}
+
+/* =========================================================
+   Deck tokens (DECKS.md companion — 1456×816 canvas)
+   Paste this block into tokens.css, after the main :root.
+   Slide markup must ONLY use these variables — never raw
+   HEX, never hardcoded sizes, never pt units.
+   ========================================================= */
+:root {
+  /* ---------- Deck color aliases ----------
+     Resolve to --sq-* primitives. If a brand color changes,
+     it changes once (in the primitive) and decks + PNG
+     re-exports follow. */
+  --slide-bg-default:           var(--sq-white);        /* #FFFFFF */
+  --slide-bg-soft-green:        var(--sq-soft-green);   /* #E2F7F3 */
+  --slide-bg-dark-brand:        var(--sq-dark-brand);   /* #201637 */
+  --slide-bg-deep-green:        var(--sq-deep-green);   /* #065647 */
+  --slide-accent:               var(--sq-brand-green);  /* #31C9AC — never body text on white */
+  --slide-text-on-light:        var(--sq-dark-brand);
+  --slide-text-on-dark:         var(--sq-white);
+  --slide-text-accent-on-light: var(--sq-deep-green);
+
+  /* ---------- Deck typography ----------
+     Inter only. Degular and --sq-font-display are forbidden
+     in decks (web UI kit only). */
+  --slide-font-title: var(--sq-font-body);
+  --slide-font-body:  var(--sq-font-body);
+
+  --slide-display:        80px;   /* Cover / divider hero */
+  --slide-divider-title:  64px;   /* Section divider title */
+  --slide-h1:             44px;   /* Slide title */
+  --slide-h2:             26px;   /* Eyebrow / subtitle */
+  --slide-card-header:    20px;   /* Titles inside cards */
+  --slide-card-subheader: 18px;   /* Category labels */
+  --slide-body:           18px;   /* Body / bullets */
+  --slide-stat:           96px;   /* Stat numbers (range 75–107px allowed) */
+  --slide-agenda-number:  52px;   /* Agenda index numbers */
+  --slide-caption:        14px;   /* Captions / sources */
+  --slide-footer:         13px;   /* Footer text — PNG asset production only */
+
+  /* ---------- Deck layout (1456×816 canvas) ---------- */
+  --slide-w:             1456px;
+  --slide-h:              816px;
+  --slide-margin-x:        60px;  /* Content slides */
+  --slide-margin-top:      48px;
+  --slide-footer-y:       753px;  /* Baked-in footer line, measured from PNG assets */
+  --slide-content-max-y:  729px;  /* footer-y − 24px buffer: hard content limit */
+  --cover-margin-x:        77px;  /* Cover / divider lateral margin */
+  --cover-content-end-y:  739px;  /* 77px bottom margin, symmetric with lateral */
+}
+
+/* NOTE — decks vs. .sq-grid-bg:
+   The .sq-grid-bg utility recreates the brand grid in CSS for
+   WEB surfaces. In decks the grid is baked into the cover /
+   divider PNGs — never apply .sq-grid-bg inside <deck-stage>,
+   or you get a double grid over the background image. */
