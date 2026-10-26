@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Québec Knowledge Test Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@500;700;800;900&family=Overpass+Mono:wght@500;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a highway guide-sign header, a sticky tab strip, then one working panel at a time (prep → traps → notes → cards → test). */
+:root{
+  --bg:#F2F4F0; --surface:#FFFFFF; --ink:#14191B; --muted:#56615F; --rule:#D3D9D3;
+  --guide:#0E6B3E; --guide-ink:#FFFFFF;
+  --accent:#1D4F9A;
+  --warn:#F1BE2C; --work:#E46F1A; --stop:#C3122B; --school:#C9E23B;
+  --good:#1B7A43; --good-bg:#E3F2E8; --bad:#B4202F; --bad-bg:#FBE6E8; --hint-bg:#FFF6D9;
+  --chip:#E6EBE5;
+  --pill-code-bg:#DCE6F7; --pill-code:#163E7A; --pill-signs-bg:#FCEFC4; --pill-signs:#5A4300; --pill-drive-bg:#D9EEE1; --pill-drive:#0E4F2C;
+  --f-display:"Overpass","Arial Narrow",Arial,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:"Overpass Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101416; --surface:#192022; --ink:#E7ECE8; --muted:#9BA7A3; --rule:#2B3537;
+  --guide:#0F5A35; --guide-ink:#F2FFF7; --accent:#7FA8EC;
+  --good:#5FD08C; --good-bg:#16301F; --bad:#FF7B86; --bad-bg:#3A1A1E; --hint-bg:#2E2913; --chip:#232C2E;
+  --pill-code-bg:#1E2D47; --pill-code:#A9C4F2; --pill-signs-bg:#3A3112; --pill-signs:#F3D98A; --pill-drive-bg:#173323; --pill-drive:#9EE0B6;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#101416; --surface:#192022; --ink:#E7ECE8; --muted:#9BA7A3; --rule:#2B3537;
+  --guide:#0F5A35; --guide-ink:#F2FFF7; --accent:#7FA8EC;
+  --good:#5FD08C; --good-bg:#16301F; --bad:#FF7B86; --bad-bg:#3A1A1E; --hint-bg:#2E2913; --chip:#232C2E;
+  --pill-code-bg:#1E2D47; --pill-code:#A9C4F2; --pill-signs-bg:#3A3112; --pill-signs:#F3D98A; --pill-drive-bg:#173323; --pill-drive:#9EE0B6;
+  color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:1.6rem;font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.15rem;font-weight:800}
+p{margin:0}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;color:var(--muted)}
+
+.sign-hdr{background:var(--guide);color:var(--guide-ink);padding-block:22px 20px;}
+.sign-plate{border:3px solid var(--guide-ink);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:10px 20px;align-items:center}
+.sign-plate h1{font-size:clamp(1.7rem,4.6vw,2.6rem);font-weight:900;text-transform:uppercase;letter-spacing:.01em}
+.sign-plate .sub{font-family:var(--f-display);font-weight:700;font-size:1.02rem;opacity:.95}
+.exit{background:var(--guide-ink);color:var(--guide);font-family:var(--f-display);font-weight:900;border-radius:8px;padding:8px 12px;text-align:center;min-width:120px}
+.exit .n{font-size:1.9rem;line-height:1;font-variant-numeric:tabular-nums}
+.exit .l{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.sign-meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.95rem;border-top:2px solid var(--guide-ink);padding-top:10px}
+.sign-meta b{font-family:var(--f-display)}
+@media (max-width:560px){.sign-plate{grid-template-columns:1fr}.exit{justify-self:start}}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--rule)}
+.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs .wrap::-webkit-scrollbar{display:none}
+.tab{border:0;background:none;padding:14px 12px 12px;font-family:var(--f-display);font-weight:800;font-size:.95rem;color:var(--muted);border-bottom:4px solid transparent;white-space:nowrap;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--warn)}
+main{padding-block:28px 64px;display:grid;gap:40px}
+section.panel{display:grid;gap:22px}
+.lede{color:var(--muted);max-width:65ch}
+
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+
+.check{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.check li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:10px 4px;border-bottom:1px dashed var(--rule)}
+.check li:last-child{border-bottom:0}
+.check input{width:22px;height:22px;margin-top:2px;accent-color:var(--guide)}
+.check label{cursor:pointer}
+.check label small{display:block;color:var(--muted);font-size:.88rem}
+.check input:checked + label > span{text-decoration:line-through;text-decoration-color:var(--muted)}
+.progress{height:8px;background:var(--chip);border-radius:99px;overflow:hidden;margin-top:12px}
+.progress > i{display:block;height:100%;background:var(--guide);width:0;transition:width .25s}
+.facts{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.facts li{display:grid;grid-template-columns:7.2rem 1fr;gap:10px;align-items:baseline}
+.facts .k{font-family:var(--f-mono);font-weight:700;font-variant-numeric:tabular-nums}
+.alert{border-left:6px solid var(--stop);background:var(--bad-bg);padding:12px 14px;border-radius:0 8px 8px 0}
+.note{border-left:6px solid var(--warn);background:var(--hint-bg);padding:12px 14px;border-radius:0 8px 8px 0}
+
+.trap{display:grid;gap:10px;align-content:start}
+.trap .vs{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.92rem}
+.trap .vs div{background:var(--chip);border-radius:6px;padding:8px 10px;min-width:0}
+.trap .vs .qc{background:var(--good-bg)}
+.trap .vs b{display:block;font-family:var(--f-display);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.trap .vs .qc b{color:var(--good)}
+
+details.sec{background:var(--surface);border:1px solid var(--rule);border-radius:10px}
+details.sec > summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;gap:14px;align-items:center}
+details.sec > summary::-webkit-details-marker{display:none}
+details.sec > summary .num{font-family:var(--f-display);font-weight:900;font-size:.8rem;background:var(--ink);color:var(--bg);border-radius:4px;padding:3px 8px}
+details.sec > summary h3{flex:1}
+details.sec > summary::after{content:"+";font-family:var(--f-mono);font-size:1.3rem;color:var(--muted)}
+details.sec[open] > summary::after{content:"–"}
+.sec-body{padding:0 18px 18px;display:grid;gap:18px}
+.rules{margin:0;padding-left:1.1rem;display:grid;gap:6px;max-width:72ch}
+.rules b{font-family:var(--f-display)}
+.signs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:12px}
+.sgn{display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:center;font-size:.9rem}
+.sgn svg{width:52px;height:52px}
+.fr{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:6px 16px;font-size:.93rem}
+.fr div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dotted var(--rule);padding:4px 0}
+.fr b{font-family:var(--f-display)}
+
+.fc-ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--rule);background:var(--surface);padding:9px 14px;border-radius:8px;cursor:pointer;font-family:var(--f-display);font-weight:700}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.primary:hover{opacity:.9}
+.flash{perspective:1200px;max-width:640px}
+.flash-in{position:relative;min-height:240px;transition:transform .45s;transform-style:preserve-3d;cursor:pointer}
+.flash.flipped .flash-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;padding:24px;display:grid;place-content:center;text-align:center;gap:10px}
+.face.front{background:var(--warn);color:#14191B;border:4px solid #14191B}
+.face.back{background:var(--surface);border:2px solid var(--rule);transform:rotateY(180deg)}
+.face .big{font-family:var(--f-display);font-weight:900;font-size:clamp(1.3rem,3.6vw,1.8rem);line-height:1.2;text-wrap:balance}
+.face .ans{font-family:var(--f-display);font-weight:900;font-size:clamp(1.6rem,5vw,2.4rem);color:var(--good)}
+@media (prefers-reduced-motion: reduce){.flash-in{transition:none}}
+
+.qsetup{display:grid;gap:14px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{display:flex;gap:8px;align-items:center;border:1px solid var(--rule);background:var(--surface);border-radius:99px;padding:7px 14px;cursor:pointer;font-weight:700;font-size:.93rem}
+.seg input{accent-color:var(--guide)}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.pill{font-family:var(--f-display);font-weight:800;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:99px;background:var(--chip);color:var(--ink)}
+.pill.code{background:var(--pill-code-bg);color:var(--pill-code)}
+.pill.signs{background:var(--pill-signs-bg);color:var(--pill-signs)}
+.pill.drive{background:var(--pill-drive-bg);color:var(--pill-drive)}
+.qcard{display:grid;gap:16px}
+.qtext{font-size:1.18rem;font-weight:700;max-width:68ch}
+.qsvg{width:96px;height:96px}
+.qsvg svg{width:96px;height:96px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;border:2px solid var(--rule);background:var(--surface);border-radius:10px;padding:12px 14px;cursor:pointer;display:grid;grid-template-columns:2rem 1fr;gap:8px;align-items:start}
+.opt:hover:not([disabled]){border-color:var(--ink)}
+.opt .let{font-family:var(--f-mono);font-weight:700;color:var(--muted)}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt[disabled]{cursor:default}
+.why{border-left:6px solid var(--accent);background:var(--chip);padding:12px 14px;border-radius:0 8px 8px 0;display:grid;gap:4px}
+.why small{color:var(--muted)}
+.bar{height:6px;background:var(--chip);border-radius:99px;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.results{display:grid;gap:14px}
+.score-row{display:grid;grid-template-columns:minmax(0,10rem) 1fr 4rem 4rem;gap:10px;align-items:center}
+@media (max-width:480px){.score-row{grid-template-columns:1fr 3.5rem 3.5rem}.score-row .meter{grid-column:1/-1;grid-row:2}}
+.meter{height:12px;background:var(--chip);border-radius:99px;position:relative;overflow:hidden}
+.meter > i{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.meter::after{content:"";position:absolute;top:0;bottom:0;left:75%;border-left:2px dashed var(--ink);opacity:.6}
+.verdict{font-family:var(--f-display);font-weight:900;font-size:.85rem;text-align:center;border-radius:4px;padding:3px 0}
+.verdict.pass{background:var(--good-bg);color:var(--good)}
+.verdict.fail{background:var(--bad-bg);color:var(--bad)}
+.best{font-size:.9rem;color:var(--muted)}
+.review{display:grid;gap:10px}
+.review .item{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:var(--surface);font-size:.93rem}
+.review .item b{display:block}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--rule);padding-top:16px;display:grid;gap:6px}
+</style>
+</head>
+<body>
+
+<header class="sign-hdr">
+  <div class="wrap">
+    <div class="sign-plate">
+      <div>
+        <h1>Québec Knowledge Test</h1>
+        <p class="sub">Class 5 · passenger vehicle · Australian licence exchange</p>
+      </div>
+      <div class="exit" aria-live="polite"><div class="n" id="cd-n">–</div><div class="l" id="cd-l">until test</div></div>
+      <div class="sign-meta">
+        <span><b>Tue 27 Oct 2026</b> · 13:00</span>
+        <span><b>SAAQ Henri-Bourassa</b> · 855, boul. Henri-Bourassa O., Montréal H3L 1P3</span>
+        <span><b>Pass mark</b> · 75% in each of 3 sections</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" data-tab="prep" id="t-prep">Bring tomorrow</button>
+    <button class="tab" role="tab" data-tab="traps" id="t-traps">Aussie traps</button>
+    <button class="tab" role="tab" data-tab="notes" id="t-notes">Study notes</button>
+    <button class="tab" role="tab" data-tab="cards" id="t-cards">Number cards</button>
+    <button class="tab" role="tab" data-tab="quiz" id="t-quiz">Practice test</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section class="panel" id="p-prep" role="tabpanel" aria-labelledby="t-prep">
+  <div>
+    <p class="eyebrow">Your situation</p>
+    <h2>Australia has no licence-exchange agreement with Québec</h2>
+  </div>
+  <p class="lede">So you take the SAAQ knowledge test, then a road test. You have held an Australian licence for more than a year, so you skip the driving course. Tick items off as you pack. Your ticks are saved in this browser.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Documents (originals)</h3>
+      <ul class="check" id="docs">
+        <li><input type="checkbox" id="d1"><label for="d1"><span>Valid Australian driver’s licence</span><small>The physical card. Your state’s digital licence alone may not be accepted.</small></label></li>
+        <li><input type="checkbox" id="d2"><label for="d2"><span>Passport</span><small>Main proof of identity.</small></label></li>
+        <li><input type="checkbox" id="d3"><label for="d3"><span>Proof of right to stay in Canada</span><small>PR card or CoPR, work permit, study permit, etc. SAAQ asks for one or two IDs depending on your status.</small></label></li>
+        <li><input type="checkbox" id="d4"><label for="d4"><span>Proof of Québec residence</span><small>Lease, utility bill, bank or government letter with your Montréal address.</small></label></li>
+        <li><input type="checkbox" id="d5"><label for="d5"><span>Proof you lived in Australia when the licence was issued</span><small>Only needed if you’ve held the licence for less than 3 years.</small></label></li>
+        <li><input type="checkbox" id="d6"><label for="d6"><span>Australian driving record / history (recommended)</span><small>From your state road authority. SAAQ uses it to count experience. Under 24 months recognised = probationary licence.</small></label></li>
+        <li><input type="checkbox" id="d7"><label for="d7"><span>RAMQ health insurance card, if you have one</span><small>Second piece of ID.</small></label></li>
+        <li><input type="checkbox" id="d8"><label for="d8"><span>$13.50 in cash or a debit card</span><small>Credit cards are not accepted.</small></label></li>
+      </ul>
+      <div class="progress" aria-hidden="true"><i id="docs-bar"></i></div>
+      <p class="best" id="docs-count" style="margin-top:6px"></p>
+    </div>
+
+    <div class="card" style="display:grid;gap:14px;align-content:start">
+      <h3>On the day</h3>
+      <ul class="facts">
+        <li><span class="k">13:00</span><span>Appointment. Arrive early to pay and check ID.</span></li>
+        <li><span class="k">30–60 min</span><span>Test length. Multiple choice, A–D, on screen. Many questions show an illustration with numbered vehicles.</span></li>
+        <li><span class="k">3 sections</span><span>Highway Safety Code · Road signs &amp; signals · Driving techniques (passenger vehicle)</span></li>
+        <li><span class="k">≥ 75%</span><span>Needed on <em>each</em> section, not on the average.</span></li>
+        <li><span class="k">28 days</span><span>Wait before retaking. You only redo the sections you failed, and pay again.</span></li>
+      </ul>
+      <div class="alert"><b>Phone, smartwatch and notes count as cheating</b> even if you never touch them. You’d fail automatically and wait 90 days. A paper dictionary with no pictures or notes is allowed.</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="display:grid;gap:10px;align-content:start">
+      <h3>After you pass</h3>
+      <ol class="rules">
+        <li>Book the road test on SAAQclic. It costs $33.75.</li>
+        <li>Print and sign the <a href="https://saaq.gouv.qc.ca/blob/saaq/documents/publications/Consent-by-holder-of-driver-s-licence-from-jurisdiction-that-does-not-have-a-licence-exchange-agreement-with-Quebec.pdf" target="_blank" rel="noopener">consent form for non-agreement licence holders</a>. Bring it to the road test.</li>
+        <li>Bring your own roadworthy car with its registration and a paper copy of the insurance. You can’t bring passengers or pets.</li>
+      </ol>
+    </div>
+    <div class="note">
+      <b>Bring someone with a licence to the road test.</b> If you fail it, you can no longer drive on your Australian licence. You get a Québec learner’s licence instead: you must be accompanied, can’t drive midnight–5 a.m. and must have zero alcohol. That person can then drive you home.
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="p-traps" role="tabpanel" aria-labelledby="t-traps" hidden>
+  <div>
+    <p class="eyebrow">Where Australian habits cost marks</p>
+    <h2>Québec rules that differ from home</h2>
+  </div>
+  <p class="lede">These are the questions an experienced Australian driver is most likely to get wrong on instinct.</p>
+  <div class="grid3" id="trap-grid"></div>
+</section>
+
+<section class="panel" id="p-notes" role="tabpanel" aria-labelledby="t-notes" hidden>
+  <div>
+    <p class="eyebrow">Organised by test section</p>
+    <h2>Study notes</h2>
+  </div>
+  <p class="lede">Section 3 comes from your PDF, <em>Driving a Passenger Vehicle</em>. Sections 1 and 2 come from the SAAQ <em>Driver’s Handbook</em> and SAAQ’s newcomer pages.</p>
+
+  <details class="sec" open>
+    <summary><span class="num">1</span><h3>Highway Safety Code</h3></summary>
+    <div class="sec-body">
+      <ul class="rules">
+        <li><b>Right turn on red:</b> banned everywhere on the <b>Island of Montréal</b>. Elsewhere it’s allowed unless a sign forbids it. Come to a full stop first, as at a stop sign, then yield.</li>
+        <li><b>Traffic lights out:</b> treat the intersection as an all-way stop.</li>
+        <li><b>All-way stop:</b> the first vehicle to stop goes first. If two stop at the same time, yield to the vehicle on your right. Pedestrians already crossing have priority.</li>
+        <li><b>Left turns:</b> if the oncoming car is also turning left, turn <em>in front</em> of it, not behind it.</li>
+        <li><b>School bus</b> with flashing red lights or stop arm: stop <b>more than 5 m</b> away, from <b>either direction</b>, on any number of lanes. The only exception is oncoming traffic separated by a median or other divider. Four alternating yellow lights or hazards mean get ready to stop.</li>
+        <li><b>City bus</b> signalling to pull out where the limit is under 70 km/h: yield to it.</li>
+        <li><b>Emergency vehicle</b> with siren or lights: clear the lane and stop if necessary. Don’t follow it afterwards. Slowing down in your own lane is not enough.</li>
+        <li><b>Move-over law:</b> for a stopped emergency vehicle, tow truck or patrol vehicle with flashing lights or arrow, slow down and move over a lane if safe. If you can’t move over, stop. Penalty: $200–300 and 4 points.</li>
+        <li><b>Default speed limits:</b> 50 km/h in towns, 90 on secondary roads, 100 on most highways. Montréal school zones are usually posted at 30.</li>
+        <li><b>Excessive speeding</b> means 40+ over in a zone of 60 or less, 50+ over in a zone above 60 up to 90, or 60+ over in a zone of 100 or more. Penalty: immediate 7-day licence suspension, then double the points and the fine.</li>
+        <li><b>Fines double</b> for speeding in road work zones and in school zones during the school year.</li>
+        <li><b>Alcohol:</b> 0.08 BAC is a Criminal Code offence. <b>Zero alcohol</b> applies to drivers under 22 and all learner and probationary licence holders. <b>Zero drugs</b> applies to everyone. Nobody may smoke cannabis in a vehicle.</li>
+        <li><b>Hand-held devices:</b> holding a phone while driving costs <b>$300–600 and 5 points</b>. Stopped at a red light or in traffic still counts as driving. Hands-free is legal.</li>
+        <li><b>Demerit point limits:</b> 15 points at age 25 or older, 12 at 23–24, 8 under 23, and 4 for learner or probationary licences. Points stay on your record for 2 years. Driving while revoked means a 30-day vehicle seizure.</li>
+        <li><b>Winter tires:</b> four, in good condition, from <b>December 1 to March 15</b>.</li>
+        <li><b>Always carry</b> your licence, the vehicle registration and proof of insurance (third-party liability of at least $50,000).</li>
+        <li><b>Cyclists and pedestrians:</b> when passing, leave <b>1 m</b> in zones of 50 km/h or less and <b>1.5 m</b> in faster zones. Stop for a pedestrian who steps onto a crosswalk or shows they want to cross. Don’t stop on a bike path or within 5 m of one.</li>
+        <li><b>Roundabouts:</b> enter to the right and go counter-clockwise. Yield to vehicles, cyclists and pedestrians already in the roundabout.</li>
+        <li><b>Seat belts</b> are required in every seat. The driver is responsible for passengers under 16. Passengers 16 and over pay their own fine.</li>
+        <li><b>Child seats</b> until 145 cm tall or 9 years old. Children 12 and under should ride in the back.</li>
+        <li><b>Horn:</b> only to warn of danger or signal your presence. Honking in anger can cost $100 or more.</li>
+        <li><b>Lanes:</b> never cross two lanes in one move. The centre lane of a 3- or 5-lane two-way road is for left turns only, never for passing.</li>
+        <li><b>Railway crossing</b> with flashing lights: stop at least 5 m from the nearest rail. Buses, minibuses and trucks carrying hazardous materials always stop, so expect them to.</li>
+        <li><b>Shared street:</b> 20 km/h and pedestrians have priority. <b>Bike street:</b> 30 km/h and cyclists can use the whole lane.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="sec">
+    <summary><span class="num">2</span><h3>Road signs, signals &amp; markings</h3></summary>
+    <div class="sec-body">
+      <div class="signs" id="sign-gallery"></div>
+      <ul class="rules">
+        <li><b>Solid red</b> means stop before the stop line or crosswalk. Lights sit on the far side of the intersection, so don’t stop under them.</li>
+        <li><b>Yellow (amber)</b> means stop, unless you’re so close you can’t stop safely.</li>
+        <li><b>Flashing green or a green arrow</b> means a protected left turn. Oncoming traffic has a red.</li>
+        <li><b>Flashing red</b> means stop, yield, then go, like a stop sign. <b>Flashing yellow</b> means slow down and yield to anyone already in the intersection.</li>
+        <li><b>Red arrow</b> means no movement in that direction. A <b>yellow arrow</b> works like a yellow light for that direction.</li>
+        <li><b>Pedestrian lights:</b> a white walking figure means pedestrians may cross. An orange hand means don’t start crossing; when it flashes, people already crossing should hurry.</li>
+        <li><b>Yellow lines</b> separate traffic going in opposite directions. <b>White lines</b> separate lanes going the same way and also mark stop lines and crosswalks.</li>
+        <li><b>Broken line</b> means you may cross it to pass when safe. <b>Solid line</b> means don’t cross. With a solid and a broken line side by side, only the side with the broken line may pass.</li>
+        <li><b>White diamond</b> on a sign or the pavement marks a reserved lane, e.g. for buses and taxis, with hours shown on the sign.</li>
+        <li><b>Orange signs</b> mark road work. Their speed limits are mandatory, and speeding fines double.</li>
+        <li><b>Flagperson:</b> an “Arrêt” sign means stop and wait. A “Lentement” sign means slow down and go carefully.</li>
+        <li>You may cross a solid line to pass a slow vehicle with an orange triangle, or farm machinery, when it’s safe to do so.</li>
+      </ul>
+      <div>
+        <p class="eyebrow" style="margin-bottom:6px">French you’ll see on signs</p>
+        <div class="fr">
+          <div><b>Arrêt</b><span>Stop</span></div>
+          <div><b>Cédez le passage</b><span>Yield</span></div>
+          <div><b>Lentement</b><span>Slow</span></div>
+          <div><b>Sauf / Excepté</b><span>Except</span></div>
+          <div><b>Voie réservée</b><span>Reserved lane</span></div>
+          <div><b>Travaux</b><span>Road work</span></div>
+          <div><b>Détour</b><span>Detour</span></div>
+          <div><b>Rue barrée</b><span>Road closed</span></div>
+          <div><b>Sortie</b><span>Exit</span></div>
+          <div><b>Stationnement interdit</b><span>No parking</span></div>
+          <div><b>Arrêt interdit</b><span>No stopping</span></div>
+          <div><b>Zone scolaire</b><span>School zone</span></div>
+          <div><b>Feu rouge</b><span>Red light</span></div>
+          <div><b>Chaussée glissante</b><span>Slippery road</span></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="sec">
+    <summary><span class="num">3</span><h3>Driving a passenger vehicle (your PDF)</h3></summary>
+    <div class="sec-body">
+      <div class="grid2">
+        <div><p class="eyebrow">Ch 1–2 · Ready to drive, scanning</p>
+        <ul class="rules">
+          <li>The scanning method is <b>Observe–Evaluate–Act</b>.</li>
+          <li>Check your mirrors every <b>10–12 s</b>, and before slowing, stopping, turning or changing lanes.</li>
+          <li>You lose <b>20° of field of vision for every 15 km/h</b> of speed.</li>
+          <li>The right mirror makes vehicles look <b>farther away</b> than they are.</li>
+          <li>To check a blind spot, glance quickly over your shoulder without moving your body. Keep your speed steady.</li>
+          <li>Keep at least <b>25 cm</b> between your sternum and the wheel’s airbag. The middle of the headrest should be at eye level or the top of your ears, no more than <b>7 cm</b> from your head.</li>
+          <li>Hold the wheel at <b>9 and 3</b>. Use hand-over-hand for more than half a turn.</li>
+          <li>Red warning lights mean a problem: stop and see a mechanic. Orange or yellow lights are reminders. Green shows direction.</li>
+        </ul></div>
+        <div><p class="eyebrow">Ch 3 · Controlling the vehicle</p>
+        <ul class="rules">
+          <li>Double your speed and kinetic energy goes up <b>4×</b>. Triple it and energy goes up 9×.</li>
+          <li>Two cars meeting head-on at 50 km/h hit like one car at <b>100 km/h into a wall</b>. A 100 km/h crash is like falling 12 storeys.</li>
+          <li>If a crash can’t be avoided, slow as much as possible. Aim for something that gives, like a hedge or snowbank, and hit at an angle rather than head-on.</li>
+          <li>Parking <b>downhill</b>: turn the wheels toward the curb. <b>Uphill</b>: turn them toward the street. Park within <b>30 cm</b> of the curb.</li>
+          <li>Come to a full stop before shifting N→R or R→P.</li>
+          <li>Merging onto an expressway: signal left before the end of the ramp, use the whole acceleration lane and never stop in it. Exiting: slow down only once you’re in the deceleration lane.</li>
+          <li>After passing, return to your lane once the passed car is fully visible in your <b>inside mirror</b>. When being passed, keep your speed and stay in the centre of your lane.</li>
+        </ul></div>
+        <div><p class="eyebrow">Ch 4 · Sharing the road</p>
+        <ul class="rules">
+          <li>Stopped behind a car, you should see its <b>rear tires</b>, about 5 m back.</li>
+          <li>On snow or ice, leave a gap of at least <b>8–10 s</b>.</li>
+          <li>Total stopping distance = <b>perception + reaction + braking</b>.</li>
+          <li>Motorcycles stop in a shorter distance, so leave them <em>more</em> room. They’re entitled to the whole lane.</li>
+          <li>Slow-moving vehicles travel at <b>40 km/h or less</b> and carry an orange triangle with a red border.</li>
+          <li>Most pedestrian crashes happen between <b>3 and 7 p.m.</b> in zones of 50 km/h or less.</li>
+          <li><b>Dutch reach</b>: open the door with your far hand so you turn and see cyclists.</li>
+          <li>Use low beams in tunnels. Turn on your wipers before passing a truck on a wet road.</li>
+        </ul></div>
+        <div><p class="eyebrow">Ch 5 · Strategies &amp; emergencies</p>
+        <ul class="rules">
+          <li>Dim your high beams within <b>150 m</b> of a vehicle, whether oncoming or ahead of you.</li>
+          <li>In fog, use <b>low beams</b>. If it’s very thick, pull off, turn on hazards and turn off headlights.</li>
+          <li>Rain is most slippery in its <b>first few minutes</b>. Avoid cruise control on wet, snowy or winding roads.</li>
+          <li><b>ABS:</b> press hard and hold, and don’t pump. Without ABS, brake just short of locking the wheels.</li>
+          <li>In a skid, steer where you want to go and release the brake. If you hydroplane, ease off the accelerator gradually.</li>
+          <li>If a tire blows, grip the wheel firmly and hold your speed. Don’t brake until you have control.</li>
+          <li>With two wheels on the shoulder, ease off the gas without braking, then steer gently back.</li>
+          <li>Stuck accelerator: shift to <b>N</b>, brake and pull over. Brake failure: pump the pedal, then apply the parking brake gradually.</li>
+          <li>Stuck in a snowstorm: run the engine <b>10 minutes per hour</b> with the exhaust clear and a window cracked.</li>
+          <li>Car fire: stay <b>30 m</b> away. Live wires on the car: stay inside, or jump clear if you must get out.</li>
+          <li>A temporary spare tire is limited to <b>80 km/h</b>. Animals are most active in May, June, October and November, at dawn and dusk.</li>
+        </ul></div>
+        <div><p class="eyebrow">Ch 6 · Preventive attitude</p>
+        <ul class="rules">
+          <li>The three kinds of distraction are <b>visual, physical and intellectual</b>. Hands-free calls are <em>not</em> safer, because the conversation itself distracts you.</li>
+          <li>Take a break every <b>2 h</b> and drive no more than 4 h at a time. Microsleeps last <b>3–4 s</b>.</li>
+          <li>Alcohol is a <b>depressant</b>. Coffee, food and cold showers don’t lower your BAC.</li>
+          <li>If someone pressures you, pull over and let them pass. Don’t react to aggressive drivers.</li>
+        </ul></div>
+        <div><p class="eyebrow">Accidents</p>
+        <ul class="rules">
+          <li>Protect the scene, call for help, then help the injured.</li>
+          <li>Don’t give an injured person anything to drink. Don’t remove a motorcyclist’s helmet. Don’t move anyone unless they’re in danger.</li>
+          <li>Aim an extinguisher at the base of the flames. Never use water on a fuel fire.</li>
+          <li>If you’re in an accident and don’t offer help, that’s an offence.</li>
+        </ul></div>
+      </div>
+    </div>
+  </details>
+</section>
+
+<section class="panel" id="p-cards" role="tabpanel" aria-labelledby="t-cards" hidden>
+  <div>
+    <p class="eyebrow">Tap the card to flip</p>
+    <h2>Numbers they love to test</h2>
+  </div>
+  <div class="flash" id="flash" tabindex="0" role="button" aria-label="Flashcard, press to flip">
+    <div class="flash-in">
+      <div class="face front"><div class="eyebrow" style="color:#14191B" id="fc-n"></div><div class="big" id="fc-q"></div></div>
+      <div class="face back"><div class="ans" id="fc-a"></div><div id="fc-d" class="lede"></div></div>
+    </div>
+  </div>
+  <div class="fc-ctrl">
+    <button class="btn" id="fc-prev">← Previous</button>
+    <button class="btn primary" id="fc-flip">Flip</button>
+    <button class="btn" id="fc-next">Next →</button>
+    <button class="btn" id="fc-shuf">Shuffle</button>
+  </div>
+</section>
+
+<section class="panel" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden>
+  <div id="q-setup" class="qsetup">
+    <div>
+      <p class="eyebrow">Scored by section, like the real test</p>
+      <h2>Practice test</h2>
+    </div>
+    <p class="lede">Each answer shows an explanation and where the rule comes from. You need 75% on every section to pass.</p>
+    <div class="card qsetup">
+      <div><p class="eyebrow" style="margin-bottom:8px">Sections</p>
+        <div class="seg">
+          <label><input type="checkbox" id="s-code" checked> Highway Safety Code</label>
+          <label><input type="checkbox" id="s-signs" checked> Signs &amp; signals</label>
+          <label><input type="checkbox" id="s-drive" checked> Driving techniques</label>
+        </div></div>
+      <div><p class="eyebrow" style="margin-bottom:8px">Length</p>
+        <div class="seg">
+          <label><input type="radio" name="len" id="len-30" value="30" checked> 30 questions (mock test)</label>
+          <label><input type="radio" name="len" id="len-all" value="all"> Every question</label>
+          <label><input type="radio" name="len" id="len-miss" value="miss"> Only ones I’ve missed</label>
+        </div></div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="btn primary" id="q-start">Start test</button>
+        <span class="best" id="q-best"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="q-run" class="qcard" hidden>
+    <div class="qhead">
+      <span id="q-pill" class="pill"></span>
+      <span class="mono" id="q-count"></span>
+    </div>
+    <div class="bar"><i id="q-bar"></i></div>
+    <div class="card qcard">
+      <div id="q-svg"></div>
+      <p class="qtext" id="q-text"></p>
+      <div class="opts" id="q-opts"></div>
+      <div class="why" id="q-why" hidden></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn primary" id="q-next" hidden>Next question</button>
+      <button class="btn" id="q-quit">End test</button>
+    </div>
+  </div>
+
+  <div id="q-res" class="results" hidden>
+    <div><p class="eyebrow">Result</p><h2 id="r-head"></h2></div>
+    <div class="card results" id="r-rows"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn primary" id="r-again">New test</button>
+      <button class="btn" id="r-miss">Retry the ones I missed</button>
+    </div>
+    <div id="r-review" class="review"></div>
+  </div>
+</section>
+
+<footer>
+  <p>Sources: SAAQ <em>Driving a Passenger Vehicle</em> (2022, your PDF) · SAAQ <em>Driver’s Handbook</em> · saaq.gouv.qc.ca pages on foreign licences, preparing for the tests, particularities of driving in Québec, demerit points and speeding. Checked 26 Oct 2026.</p>
+  <p>The PDF predates two rule updates. Winter tires are now required from Dec 1, not Dec 15. The zero-alcohol rule covers drivers “under 22”, which means the same as the guide’s “21 or younger”.</p>
+</footer>
+</main>
+
+<script>
+(function(){
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const $=id=>document.getElementById(id);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+const target=Date.parse("2026-10-27T13:00:00-04:00");
+function tick(){
+  const ms=target-Date.now(), n=$("cd-n"), l=$("cd-l");
+  if(ms<=0){n.textContent="Today";l.textContent="good luck";return}
+  const h=Math.floor(ms/3.6e6), m=Math.floor(ms%3.6e6/6e4);
+  if(h>=48){n.textContent=Math.ceil(h/24)+" d"}else{n.textContent=h+"h "+String(m).padStart(2,"0")}
+  l.textContent="until test";
+}
+tick(); setInterval(tick,30000);
+
+const tabs=[...document.querySelectorAll(".tab")];
+function show(name){
+  tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===name?"true":"false"));
+  document.querySelectorAll(".panel").forEach(p=>p.hidden=p.id!=="p-"+name);
+  store.set("qkt-tab",name);
+}
+tabs.forEach(t=>t.addEventListener("click",()=>{show(t.dataset.tab);window.scrollTo({top:0})}));
+const fromHash=(location.hash||"").slice(1);
+show(["prep","traps","notes","cards","quiz"].includes(fromHash)?fromHash:store.get("qkt-tab","prep"));
+
+const boxes=[...document.querySelectorAll("#docs input")];
+const saved=store.get("qkt-docs",{});
+function upd(){const c=boxes.filter(b=>b.checked).length;$("docs-bar").style.width=(c/boxes.length*100)+"%";$("docs-count").textContent=c+" of "+boxes.length+" packed"}
+boxes.forEach(b=>{b.checked=!!saved[b.id];b.addEventListener("change",()=>{saved[b.id]=b.checked;store.set("qkt-docs",saved);upd()})});
+upd();
+
+const SVG={
+  stop:'<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="30,2 70,2 98,30 98,70 70,98 30,98 2,70 2,30" fill="#C3122B"/><polygon points="32,8 68,8 92,32 92,68 68,92 32,92 8,68 8,32" fill="none" stroke="#fff" stroke-width="3"/><text x="50" y="58" text-anchor="middle" font-family="Overpass,Arial" font-weight="900" font-size="21" fill="#fff">ARRÊT</text></svg>',
+  yield:'<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="4,10 96,10 50,94" fill="#C3122B"/><polygon points="22,21 78,21 50,72" fill="#fff"/></svg>',
+  warn:'<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,2 98,50 50,98 2,50" fill="#F1BE2C" stroke="#14191B" stroke-width="3"/><path d="M38 64 L50 36 L62 64" fill="none" stroke="#14191B" stroke-width="6" stroke-linejoin="round"/></svg>',
+  work:'<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,2 98,50 50,98 2,50" fill="#E46F1A" stroke="#14191B" stroke-width="3"/><circle cx="50" cy="38" r="6" fill="#14191B"/><path d="M50 46 L50 66 M40 54 L60 54 M50 66 L42 78 M50 66 L58 78" stroke="#14191B" stroke-width="5" stroke-linecap="round" fill="none"/></svg>',
+  prohib:'<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="#fff" stroke="#C3122B" stroke-width="9"/><path d="M38 66 V40 a6 6 0 0 1 6-6 h14" fill="none" stroke="#14191B" stroke-width="7"/><path d="M56 25 L67 34 L56 43 Z" fill="#14191B"/><line x1="20" y1="80" x2="80" y2="20" stroke="#C3122B" stroke-width="9"/></svg>',
+  oblig:'<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="#fff" stroke="#1B7A43" stroke-width="9"/><path d="M50 78 V36" stroke="#14191B" stroke-width="8" fill="none"/><path d="M36 42 L50 22 L64 42 Z" fill="#14191B"/></svg>',
+  school:'<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,3 96,38 96,97 4,97 4,38" fill="#C9E23B" stroke="#14191B" stroke-width="3"/><circle cx="40" cy="44" r="6" fill="#14191B"/><circle cx="62" cy="48" r="5" fill="#14191B"/><path d="M40 52 V72 M40 72 L33 86 M40 72 L47 86 M62 55 V74 M62 74 L56 86 M62 74 L68 86" stroke="#14191B" stroke-width="5" stroke-linecap="round" fill="none"/></svg>',
+  rail:'<svg viewBox="0 0 100 100" aria-hidden="true"><g transform="rotate(40 50 50)"><rect x="4" y="40" width="92" height="20" fill="#fff" stroke="#C3122B" stroke-width="4"/></g><g transform="rotate(-40 50 50)"><rect x="4" y="40" width="92" height="20" fill="#fff" stroke="#C3122B" stroke-width="4"/></g></svg>',
+  slow:'<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,6 97,92 3,92" fill="#C3122B"/><polygon points="50,24 82,82 18,82" fill="#F07A1E"/></svg>',
+  diamond:'<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="4" y="4" width="92" height="92" rx="6" fill="#14191B"/><polygon points="50,18 78,50 50,82 22,50" fill="none" stroke="#fff" stroke-width="7"/></svg>'
+};
+const gallery=[
+  ["stop","<b>Stop</b> · red octagon. Full stop at the line."],
+  ["yield","<b>Yield</b> · inverted triangle. Give way to traffic already in the lane."],
+  ["warn","<b>Danger / warning</b> · yellow diamond."],
+  ["work","<b>Road work</b> · orange. Its limits are mandatory."],
+  ["prohib","<b>Prohibition</b> · red circle with a bar."],
+  ["oblig","<b>Obligation</b> · green circle. You must do this."],
+  ["school","<b>School zone / crossing</b> · yellow-green pentagon."],
+  ["rail","<b>Railway crossing</b> · white X, red border."],
+  ["slow","<b>Slow-moving vehicle</b> · 40 km/h or less."],
+  ["diamond","<b>Reserved lane</b> · diamond symbol."]
+];
+$("sign-gallery").innerHTML=gallery.map(([k,t])=>'<div class="sgn">'+SVG[k]+'<span>'+t+'</span></div>').join("");
+
+const TRAPS=[
+  ["Drive on the right","You keep left.","Keep right. Lights, mirrors and blind spots are all mirrored too: your big blind spot is now over your left shoulder, and the right mirror makes cars look farther away."],
+  ["No right turn on red in Montréal","Turning on red isn’t a thing.","Banned on the <b>whole island of Montréal</b>, including Henri-Bourassa. Elsewhere it’s allowed after a full stop unless a sign forbids it."],
+  ["Lights sit across the intersection","Lights are at the stop line.","The signal is on the far side. Stop at the white stop line or crosswalk, not under the light."],
+  ["Flashing green = protected left","Green arrows do this.","A flashing green ball or a green arrow means oncoming traffic is held. Turn left."],
+  ["Left-turners pass in front","Opposing right-turners usually pass behind each other.","When you and an oncoming car both turn left, turn in front of each other, not around behind."],
+  ["All-way stops are everywhere","Roundabouts and give-way rules.","First to stop goes first. If two arrive together, yield to the vehicle on your right."],
+  ["School buses stop everyone","Only a 40 km/h zone sign.","Flashing reds mean <b>both directions stop</b>, more than 5 m back, on any number of lanes, unless there’s a median."],
+  ["0.08, not 0.05","0.05 BAC limit.","0.08 is the criminal limit for full licence holders. Zero for under-22s and new drivers. Zero drugs for everyone."],
+  ["Phones: holding = offence","Similar, varies by state.","Holding a device while driving, even at a red light, costs $300–600 and <b>5 points</b>. Points count up toward 15, not down from 12."],
+  ["Winter tires are law","Not a thing.","Four winter tires from <b>Dec 1 to Mar 15</b>. Clear all snow off the car, roof included, before you drive."],
+  ["Move over for any flashing lights","Slow to 40 past emergency vehicles (rules vary by state).","Change lanes away from stopped emergency vehicles, tow trucks and patrol vehicles with lights on. If you can’t, stop. 4 points."],
+  ["French signs","English.","ARRÊT = stop, CÉDEZ = yield, LENTEMENT = slow, SAUF = except. Shapes and colours carry the meaning."]
+];
+$("trap-grid").innerHTML=TRAPS.map(([h,au,qc])=>'<div class="card trap"><h3>'+h+'</h3><div class="vs"><div><b>Australia</b>'+au+'</div><div class="qc"><b>Québec</b>'+qc+'</div></div></div>').join("");
+
+const CARDS=[
+  ["Pass mark on each test section","75%","Every section separately, not the average."],
+  ["Wait before retaking the test","28 days","You only redo the sections you failed."],
+  ["Distance from a school bus with flashing reds","> 5 m","From either direction, unless a median separates you."],
+  ["Gap when passing a cyclist in a 50 km/h zone","1 m","1.5 m where the limit is above 50."],
+  ["Dim high beams within…","150 m","Of an oncoming car or one you’re following."],
+  ["Mirror check frequency","10–12 s","And before every slowdown, turn or lane change."],
+  ["Field of vision lost per +15 km/h","20°","Higher speed gives you tunnel vision."],
+  ["Airbag: sternum to steering-wheel centre","≥ 25 cm","Tilt the wheel down toward your chest."],
+  ["Headrest gap behind your head","≤ 7 cm","Middle of the headrest at eye level or the top of your ears."],
+  ["Max distance from curb when parked","30 cm","Downhill: wheels toward the curb. Uphill: toward the street."],
+  ["Kinetic energy when speed doubles","× 4","Triple the speed means × 9."],
+  ["Following gap on snow or ice","8–10 s","Stopped in traffic, you should see the car ahead’s rear tires."],
+  ["Slow-moving vehicle speed","≤ 40 km/h","Orange triangle with a red border."],
+  ["Bus right-of-way when pulling out applies if limit is below…","70 km/h","Yield to the bus."],
+  ["Shared street speed limit","20 km/h","Pedestrians have priority and can cross anywhere."],
+  ["Bike street speed limit","30 km/h","Cyclists can use the full lane."],
+  ["Default limits: town · secondary · highway","50 · 90 · 100","Watch for posted exceptions."],
+  ["Excessive speeding in a 50 zone","+40 km/h","Immediate 7-day suspension, double points and fine."],
+  ["Hand-held phone penalty","5 pts","Fine of $300–600. Still applies at a red light."],
+  ["Demerit limit, age 25+","15 pts","8 under 23, 12 at 23–24, 4 for learner or probationary."],
+  ["Demerit points stay on record","2 years","From the conviction date."],
+  ["Winter tire period","Dec 1 – Mar 15","Four winter tires in good condition."],
+  ["Criminal BAC limit","0.08","Zero for under-22s and learner or probationary holders."],
+  ["Child car seat until…","145 cm or 9 yrs","Under 12s ride in the back."],
+  ["Temporary spare tire top speed","80 km/h","Replace it as soon as you can."],
+  ["Stay away from a burning car","30 m","Also move 30 m from the tracks if your car stalls on them and a train is coming."],
+  ["Run engine when snowbound","10 min / hour","Keep the exhaust clear and a window cracked."],
+  ["Take a break every…","2 h","No more than 4 h of driving at a time."],
+  ["Move-over law penalty","4 pts","Fine of $200–300."],
+  ["Don’t stop within … of a bike path","5 m","And never drive or park on one."]
+];
+let order=CARDS.map((_,i)=>i), ci=0;
+const flash=$("flash");
+function drawCard(){const c=CARDS[order[ci]];flash.classList.remove("flipped");$("fc-n").textContent="Card "+(ci+1)+" / "+CARDS.length;$("fc-q").textContent=c[0];$("fc-a").textContent=c[1];$("fc-d").textContent=c[2]}
+const flip=()=>flash.classList.toggle("flipped");
+const nextC=()=>{ci=(ci+1)%CARDS.length;drawCard()}, prevC=()=>{ci=(ci-1+CARDS.length)%CARDS.length;drawCard()};
+flash.addEventListener("click",flip);
+flash.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();flip()}if(e.key==="ArrowRight")nextC();if(e.key==="ArrowLeft")prevC()});
+$("fc-flip").onclick=flip; $("fc-next").onclick=nextC; $("fc-prev").onclick=prevC;
+$("fc-shuf").onclick=()=>{order=shuffle(order);ci=0;drawCard()};
+drawCard();
+
+const G="Driving a Passenger Vehicle", H="SAAQ Driver’s Handbook", N="SAAQ · Particularities of driving in Québec";
+const Q=[
+{s:"code",q:"You’re stopped at a red light on boulevard Henri-Bourassa in Montréal and want to turn right. What do you do?",o:["Stop, check, then turn if clear","Wait for the green light","Turn without stopping if no pedestrians","Turn only if a sign allows it at that hour"],a:1,w:"Right turns on red are prohibited everywhere on the Island of Montréal.",r:N},
+{s:"code",q:"Outside Montréal, at a light where right on red is allowed, you must first…",o:["Slow down and yield","Come to a complete stop, then yield to pedestrians and traffic","Sound your horn","Wait for the pedestrian light to change"],a:1,w:"Treat it like a stop sign: full stop, then turn only when safe.",r:N},
+{s:"code",q:"The traffic lights at an intersection are out of order. How do you proceed?",o:["As if it were an all-way stop","Main road has priority","Proceed carefully without stopping","As if lights were flashing yellow"],a:0,w:"When lights are defective you act as though there are stop signs in every direction.",r:H+", ch 3"},
+{s:"code",q:"At an all-way stop, two cars stop at exactly the same time. Who goes first?",o:["The car on the left","The larger vehicle","The car on the right","The car going straight"],a:2,w:"First to stop goes first. If you arrive together, yield to the vehicle on your right.",r:H+", ch 4"},
+{s:"code",q:"You’re turning left at an intersection and the oncoming car is also turning left. How do you both turn?",o:["Each turns behind the other","Each turns in front of the other","The first to arrive turns, the other waits","Whoever signalled first"],a:1,w:"In Québec, opposing left-turners turn in front of each other, not around behind.",r:N},
+{s:"code",q:"A school bus ahead has its red lights flashing. You’re on a 4-lane road with no median, going the other way. You must:",o:["Slow down and pass with care","Continue: you’re on the other side","Stop more than 5 m from the bus","Stop only if children are visible"],a:2,w:"All drivers must stop in both directions on any undivided road. Only a median or divider exempts oncoming traffic.",r:G+", ch 4"},
+{s:"code",q:"A school bus turns on its four alternating yellow lights. This means:",o:["Pass quickly before it stops","Prepare to stop","Stop now","The bus is turning"],a:1,w:"Yellow lights are the pre-warning. Red lights or the stop arm mean a full stop.",r:G+", ch 4"},
+{s:"code",q:"A city bus signals to pull out from a stop on a 50 km/h street. You must:",o:["Speed up to pass it","Yield to the bus","Honk to warn the driver","Pass on the left"],a:1,w:"Where the limit is below 70 km/h, you must let the bus re-enter the lane.",r:G+", ch 4"},
+{s:"code",q:"An ambulance with siren on comes up behind you. What should you NOT do?",o:["Free the lane","Stop if necessary","Slow down while staying in your lane","Avoid sudden braking in front of it"],a:2,w:"Slowing in your lane blocks it. Clear the lane and stop if needed, and don’t follow it afterwards.",r:G+", ch 4"},
+{s:"code",q:"A tow truck is stopped on the shoulder with flashing lights. The law requires you to:",o:["Maintain speed","Slow down and move away, changing lanes if safe, or stop","Honk as you pass","Stop behind it until it leaves"],a:1,w:"The move-over law: slow down, create a buffer lane, or stop if you can’t move over. $200–300 and 4 demerit points.",r:N},
+{s:"code",q:"Unless otherwise posted, what’s the speed limit in a city or town?",o:["40 km/h","50 km/h","60 km/h","70 km/h"],a:1,w:"50 km/h in built-up areas, 90 on secondary roads, 100 on most highways.",r:N},
+{s:"code",q:"Driving 92 km/h in a 50 km/h zone results in:",o:["A fine only","An immediate 7-day licence suspension","A warning on first offence","3 demerit points only"],a:1,w:"40 km/h or more over in a zone of 60 or less is excessive speeding. Your licence is suspended for 7 days on the spot, and points and fines double if convicted.",r:"SAAQ · Speed: what the law says"},
+{s:"code",q:"Speeding fines are doubled in…",o:["Highways at night","Road work zones and school zones (school year)","Rural roads","Any 30 km/h zone"],a:1,w:"Fines double for speeding in work zones and in school zones during the school year.",r:"SAAQ · Speed: what the law says"},
+{s:"code",q:"Who is subject to the zero-alcohol rule?",o:["Only learner drivers","Drivers under 22 and all learner and probationary licence holders","Everyone","Only commercial drivers"],a:1,w:"Full licence holders aged 22 or older face the 0.08 criminal limit. Zero tolerance for alcohol covers young and new drivers.",r:N},
+{s:"code",q:"The zero-drug rule applies to…",o:["Drivers under 22","Probationary drivers","All drivers","Only commercial drivers"],a:2,w:"All drivers, whatever their age or vehicle, must have no drugs in their system.",r:G+", ch 6"},
+{s:"code",q:"You hold your phone while stopped at a red light. Is this an offence?",o:["No, you’re stopped","Yes: $300–600 and 5 demerit points","Only if you’re texting","Only if the engine is running"],a:1,w:"Stopped at a light or in traffic still counts as driving. Only a safe, legal stop at the side of the road doesn’t.",r:G+", ch 6"},
+{s:"code",q:"For a regular licence holder aged 25 or older, the licence is revoked at:",o:["8 demerit points","12 demerit points","15 demerit points","20 demerit points"],a:2,w:"15 points at 25+, 12 at 23–24, 8 under 23, 4 for learner or probationary licences.",r:"SAAQ · Demerit points"},
+{s:"code",q:"Demerit points remain on your record for:",o:["6 months","1 year","2 years","5 years"],a:2,w:"For penalty purposes, points stay for 2 years after the conviction.",r:"SAAQ · Demerit points"},
+{s:"code",q:"Winter tires are mandatory on passenger vehicles from:",o:["Nov 1 to Apr 1","Dec 1 to Mar 15","Dec 15 to Mar 15","Whenever it snows"],a:1,w:"Dec 1 to Mar 15, four winter tires in good condition. Your PDF says Dec 15, but that’s out of date.",r:N},
+{s:"code",q:"Which documents must you carry when driving?",o:["Licence only","Licence, registration certificate, proof of insurance","Licence and passport","Registration only"],a:1,w:"Licence, vehicle registration certificate and insurance certificate.",r:N},
+{s:"code",q:"Passing a cyclist on a 70 km/h road, the minimum lateral gap is:",o:["0.5 m","1 m","1.5 m","2 m"],a:2,w:"1 m in zones of 50 km/h or less, 1.5 m in zones over 50.",r:G+", ch 4"},
+{s:"code",q:"A pedestrian is waiting on the sidewalk at a crosswalk and looks at you. You must:",o:["Continue: they haven’t stepped out","Stop and let them cross","Honk to let them know you’re coming","Slow down only"],a:1,w:"Stop as soon as a pedestrian steps onto the crosswalk or signals the intention to cross: waiting at it, walking toward it, waving or making eye contact.",r:G+", ch 4"},
+{s:"code",q:"Entering a roundabout, you must:",o:["Go clockwise and yield to traffic entering","Go counter-clockwise and yield to traffic already in it","Stop at the line every time","Use the left lane to exit right"],a:1,w:"Enter to the right, go counter-clockwise and yield to those already circulating, plus pedestrians at crosswalks.",r:N},
+{s:"code",q:"Children must use a car seat until they are:",o:["5 years old","At least 145 cm tall or 9 years old","12 years old","36 kg"],a:1,w:"145 cm or 9 years. Children 12 and under are best in the back seat.",r:N},
+{s:"code",q:"A 17-year-old passenger isn’t wearing a seat belt. Who gets the fine and points?",o:["The driver","The passenger","Both","The vehicle owner"],a:1,w:"Passengers 16 and over are responsible for themselves. The driver is responsible for passengers under 16.",r:G+", ch 1"},
+{s:"code",q:"On a two-way road with three lanes, the centre lane is for:",o:["Passing in either direction","Left turns by vehicles from either direction","Buses","Emergency vehicles only"],a:1,w:"The centre lane of 3- or 5-lane two-way roads is reserved for left turns. Passing in it is prohibited.",r:G+", ch 3"},
+{s:"code",q:"On a multi-lane road, you want to move two lanes over. You must:",o:["Do it in one smooth move","Change one lane at a time, signalling for each","Only do it at an intersection","Only do it if no one is behind you"],a:1,w:"Crossing two lanes at once is illegal. Move in steps: settle in the new lane, then signal again.",r:G+", ch 3"},
+{s:"code",q:"Railway crossing lights are flashing. You must stop:",o:["Right at the first rail","At least 5 m from the nearest rail","15 m from the sign","Only if you see a train"],a:1,w:"Stop no closer than 5 m from the nearest rail and wait until it’s safe.",r:H+", ch 4"},
+{s:"code",q:"Which vehicles must always stop at a railway crossing?",o:["Only buses","Buses, minibuses and vehicles carrying hazardous materials","Only trucks","All vehicles"],a:1,w:"Be ready to stop if you’re following one. Saying only buses stop is wrong.",r:G+", ch 4"},
+{s:"code",q:"Sounding your horn out of impatience can bring:",o:["Nothing, it’s allowed","A fine of at least $100","Licence suspension","Only a warning"],a:1,w:"The horn is only for signalling presence or danger. Honking out of anger can mean a fine of $100 or more.",r:N},
+{s:"code",q:"What is the speed limit on a “shared street”?",o:["10 km/h","20 km/h","30 km/h","40 km/h"],a:1,w:"20 km/h, and pedestrians have priority and may cross anywhere.",r:G+", ch 4"},
+{s:"signs",svg:"stop",q:"What must you do at this sign?",o:["Slow down and yield","Come to a complete stop","Stop only if traffic is coming","Stop only at night"],a:1,w:"ARRÊT = stop. A full stop at the line, or before the crosswalk.",r:H+", ch 3"},
+{s:"signs",svg:"yield",q:"This sign means:",o:["Stop","Yield the right of way","Merge ahead","Danger"],a:1,w:"Yield to vehicles already travelling in the lane you’re entering.",r:N},
+{s:"signs",svg:"warn",q:"Yellow, diamond-shaped signs are:",o:["Regulatory signs","Danger or warning signs","Road-work signs","Direction signs"],a:1,w:"Yellow diamonds warn of hazards ahead such as curves, hills or animals.",r:H+", ch 3"},
+{s:"signs",svg:"work",q:"Orange signs indicate:",o:["Tourist information","Road work. Posted limits on them are mandatory","School zones","Recommended speeds only"],a:1,w:"Orange is for work zones. Obey orange speed signs as you would white ones, and expect fines to double.",r:G+", ch 4"},
+{s:"signs",svg:"prohib",q:"A red circle with a diagonal bar means:",o:["The movement shown is recommended","The movement shown is prohibited","The movement shown is required","Caution"],a:1,w:"Red circle with a bar = prohibition. A green circle = obligation.",r:N},
+{s:"signs",svg:"oblig",q:"A sign with a green circle around an arrow means:",o:["You may go that way","You must go that way","Direction to a highway","Bike route"],a:1,w:"Green circle = obligation. The movement shown is mandatory.",r:N},
+{s:"signs",svg:"school",q:"This pentagon-shaped yellow-green sign indicates:",o:["Playground","School zone or school crossing","Pedestrian street","Hospital"],a:1,w:"Pentagon = school zone or schoolchildren crossing. Watch for the speed limit and crossing guards.",r:N},
+{s:"signs",svg:"rail",q:"This sign marks:",o:["A no-entry road","A railway crossing","An intersection ahead","A dead end"],a:1,w:"A white X with a red border marks a level crossing. Slow down, look, listen, and stop if lights flash.",r:G+", ch 4"},
+{s:"signs",svg:"slow",q:"A vehicle displaying this sign:",o:["Carries hazardous materials","Normally travels at 40 km/h or less","Is an oversize load","Is a school vehicle"],a:1,w:"Slow-moving vehicle. You may pass it even across a solid line when it’s safe to do so.",r:G+", ch 4"},
+{s:"signs",q:"A flashing green light (or a green arrow) means:",o:["Caution, light about to change","You may turn left; oncoming traffic is stopped","Pedestrians have priority","Bus-only signal"],a:1,w:"Flashing green = protected left turn. Oncoming vehicles face a red.",r:N},
+{s:"signs",q:"A flashing red light means:",o:["Slow down and proceed with caution","Stop, yield, then proceed when safe","Stop and wait for green","Light out of order; ignore it"],a:1,w:"It works like a stop sign: stop and yield before entering.",r:H+", ch 3"},
+{s:"signs",q:"A flashing yellow light means:",o:["Stop","Slow down and proceed after yielding to users already in the intersection","Speed up to clear","Turn right only"],a:1,w:"Slow down and give way to anyone already in the intersection.",r:H+", ch 3"},
+{s:"signs",q:"The light turns yellow as you approach. You must:",o:["Speed up to clear the intersection","Stop before the line, unless you’re too close to stop safely","Always stop immediately","Continue: yellow means go"],a:1,w:"Yellow = stop at the line, unless you’re already in the intersection or so close you can’t stop safely.",r:H+", ch 3"},
+{s:"signs",q:"Where do you stop for a red light?",o:["Directly under the traffic light","Before the stop line or crosswalk; if none, before the edge of the cross street","In the middle of the intersection","Just past the crosswalk"],a:1,w:"North American lights hang on the far side of the intersection. Stopping under them means you’ve already crossed.",r:N},
+{s:"signs",q:"A red arrow means:",o:["Turn in that direction with caution","Movement in that direction is prohibited","The lane is closing","Protected turn"],a:1,w:"A red arrow prohibits going in the direction it points.",r:H+", ch 3"},
+{s:"signs",q:"Yellow pavement lines separate:",o:["Lanes going the same direction","Traffic moving in opposite directions","Parking spaces","Bike lanes"],a:1,w:"Yellow lines separate opposite directions. White lines separate lanes going the same way.",r:H+", ch 3"},
+{s:"signs",q:"On your side of the centre there’s a solid line; on the other side, a broken line. Who may pass?",o:["Both directions","Only traffic on the broken-line side","Only you","Nobody"],a:1,w:"You may cross only a broken line. Solid means don’t cross.",r:H+", ch 3"},
+{s:"signs",svg:"diamond",q:"A diamond symbol on a sign or painted on a lane means:",o:["Hazard ahead","Reserved lane, e.g. for buses or taxis, during posted times","Bike path","Carpool parking"],a:1,w:"The diamond marks a reserved lane. Check the sign for the hours and which vehicles may use it.",r:N},
+{s:"signs",q:"A flagperson at a work site shows you the “Lentement” side of the sign. You:",o:["Stop","Slow down and proceed with caution","Turn around","Use the shoulder"],a:1,w:"Lentement = slow. Arrêt = stop and wait for the flagperson’s signal.",r:G+", ch 4"},
+{s:"signs",q:"The pedestrian signal shows a flashing orange hand. This tells pedestrians:",o:["Cross now","Do not start crossing; those already crossing should finish","Only children may cross","Wait for the audio beep"],a:1,w:"Orange hand = don’t start crossing. When it flashes, people already in the street hurry to finish.",r:H+", ch 3"},
+{s:"signs",q:"A sign shows a right-turn arrow struck through over a red light symbol. This means:",o:["No right turns at any time","No right turn on a red light (possibly at certain hours)","Right turn only on red","Right lane closed"],a:1,w:"This sign prohibits right turns on red, sometimes only during the hours shown.",r:N},
+{s:"drive",q:"What is the visual scanning method all drivers should use?",o:["Evaluate–Act–Observe","Observe–Act–Evaluate","Observe–Evaluate–Act","Act–Observe–Evaluate"],a:2,w:"Observe what’s around you, Evaluate the risk, then Act.",r:G+", ch 2"},
+{s:"drive",q:"How often should you check your rearview mirrors?",o:["Every 2–3 s","Every 10–12 s","Every minute","Only before turning"],a:1,w:"Every 10–12 seconds, and also before slowing, stopping, turning, changing lanes or entering or leaving traffic.",r:G+", ch 2"},
+{s:"drive",q:"For every 15 km/h increase in speed, your field of vision shrinks by about:",o:["5°","10°","20°","45°"],a:2,w:"20° per 15 km/h, which leaves less time to spot danger.",r:G+", ch 2"},
+{s:"drive",q:"Why avoid using the right-side mirror to judge the distance of a car behind you?",o:["It shows the car closer than it is","It makes vehicles look farther away than they are","It only shows the shoulder","It’s tinted"],a:1,w:"The convex right mirror makes vehicles look farther away than they really are.",r:G+", ch 2"},
+{s:"drive",q:"Which statement about blind spots is TRUE?",o:["They’re visible in the mirrors","Properly adjusted mirrors eliminate them","You must check them with a quick shoulder glance","They’re a safe place to drive"],a:2,w:"Mirrors reduce blind spots but can’t remove them. Glance over your shoulder without moving your body, keeping your speed steady.",r:G+", ch 2"},
+{s:"drive",q:"Minimum distance between your sternum and the centre of the steering wheel (airbag)?",o:["10 cm","15 cm","25 cm","50 cm"],a:2,w:"At least 25 cm, so a deploying airbag doesn’t injure you.",r:G+", ch 1"},
+{s:"drive",q:"How should the headrest be adjusted?",o:["Level with your neck","Middle at eye level or top of the ears, ≤ 7 cm from your head","As low as possible","Touching your head at all times while driving"],a:1,w:"Set it at the right height and within 7 cm. Too low, at the neck, and it can’t prevent whiplash.",r:G+", ch 1"},
+{s:"drive",q:"With airbags, the recommended hand position on the wheel is:",o:["10 and 2","9 and 3","8 and 4","12 and 6"],a:1,w:"Left hand at 9 o’clock, right hand at 3 o’clock.",r:G+", ch 3"},
+{s:"drive",q:"You park facing downhill next to a curb. Turn your wheels:",o:["Toward the street","Toward the curb (sidewalk)","Straight","It doesn’t matter if the parking brake is on"],a:1,w:"Downhill: wheels toward the curb or sidewalk. Uphill with a curb: toward the street. Park within 30 cm.",r:G+", ch 3"},
+{s:"drive",q:"When should you shift from Neutral to Reverse, or Reverse to Park?",o:["While rolling slowly","Only after a complete stop","Any time","While braking lightly"],a:1,w:"Shifting while moving can damage the transmission.",r:G+", ch 3"},
+{s:"drive",q:"If you double your speed, your vehicle’s kinetic energy is multiplied by:",o:["2","3","4","8"],a:2,w:"Energy rises with the square of speed: ×4 for double, ×9 for triple. Braking distance grows with it.",r:G+", ch 3"},
+{s:"drive",q:"Two cars collide head-on, each travelling at 50 km/h. The impact is like hitting a concrete wall at:",o:["50 km/h","75 km/h","100 km/h","150 km/h"],a:2,w:"The speeds add. Double the speed means four times the force of impact.",r:G+", ch 3"},
+{s:"drive",q:"A collision seems unavoidable. What should you aim for?",o:["A concrete pole, head-on","Something that yields, like a hedge or snowbank, at an angle","The other car’s driver door","Nothing; brake and close your eyes"],a:1,w:"Slow down as much as possible, then pick something that gives and avoid head-on impact.",r:G+", ch 3"},
+{s:"drive",q:"The three components of total stopping distance are:",o:["Speed, weight, tires","Perception time, reaction time, braking distance","Brakes, road, weather","Mirrors, signals, brakes"],a:1,w:"You have to see the hazard, react, then brake. Fatigue and distraction add distance.",r:G+", ch 4"},
+{s:"drive",q:"On snow or ice, leave a gap to the vehicle ahead of at least:",o:["2 s","4 s","8–10 s","20 s"],a:2,w:"Braking distances are much longer on snowy or icy roads.",r:G+", ch 4"},
+{s:"drive",q:"When stopped behind another vehicle, you should be able to see:",o:["Its licence plate only","Its rear tires touching the road","Its roof","Nothing; stay as close as possible"],a:1,w:"About one car length, roughly 5 m, so you can go around it in an emergency.",r:G+", ch 4"},
+{s:"drive",q:"Why leave more following distance behind a motorcycle than behind a car?",o:["It’s slower","It can stop in a shorter distance than your car","It has no brake lights","The law forbids following motorcycles"],a:1,w:"Motorcycles brake harder. Never follow one closely, and don’t share its lane.",r:G+", ch 4"},
+{s:"drive",q:"You must switch to low beams when you come within how far of another vehicle?",o:["50 m","100 m","150 m","300 m"],a:2,w:"Within 150 m, whether the vehicle is oncoming or one you’re following.",r:G+", ch 5"},
+{s:"drive",q:"In fog, which lights should you use?",o:["High beams","Low beams (or fog lights)","Parking lights only","Hazard lights while moving"],a:1,w:"High beams reflect off fog and make it harder to see. If fog is very thick, pull off, turn on hazards and turn off headlights.",r:G+", ch 5"},
+{s:"drive",q:"When is a road most slippery in the rain?",o:["After an hour of rain","In the first few minutes","When the rain stops","Only at night"],a:1,w:"Oil and dust rise and mix with water in the first few minutes, when tires have the least traction.",r:G+", ch 5"},
+{s:"drive",q:"Your vehicle starts hydroplaning. What do you do?",o:["Brake hard","Ease off the accelerator gradually and steer in the desired direction","Accelerate","Turn sharply toward the shoulder"],a:1,w:"Ease off slowly, keep both hands on the wheel and steer where you want to go.",r:G+", ch 5"},
+{s:"drive",q:"In a skid caused by braking, you should:",o:["Brake harder","Steer in the desired direction and release the brake","Turn the wheel opposite to where you want to go","Pull the parking brake"],a:1,w:"Steer where you want to go and release the brake. Brake again more gently if needed.",r:G+", ch 5"},
+{s:"drive",q:"Emergency braking in a car with ABS:",o:["Pump the pedal quickly","Press the pedal firmly to the floor and hold it","Use the parking brake","Shift to Park"],a:1,w:"Hold firm, steady pressure. The ABS pulses for you, and the noise and vibration are normal.",r:G+", ch 5"},
+{s:"drive",q:"A front tire blows out at highway speed. First you should:",o:["Brake hard","Grip the wheel firmly and maintain speed; don’t brake until you have control","Steer onto the shoulder immediately","Shift to neutral"],a:1,w:"Keep control first, ease off the accelerator, then brake gently and pull over.",r:G+", ch 5"},
+{s:"drive",q:"Two right wheels drop onto the shoulder. What do you do?",o:["Brake hard and jerk back","Ease off the accelerator, don’t brake, then steer gently back","Accelerate back onto the road","Stop on the shoulder immediately"],a:1,w:"Hold firmly, slow without braking, steer back toward the middle, then straighten.",r:G+", ch 5"},
+{s:"drive",q:"Your accelerator jams. Which sequence is right?",o:["Turn the key to Lock","Shift to neutral, brake, pull over, then turn off the engine","Pump the gas","Pull the parking brake hard at speed"],a:1,w:"Neutral cuts drive to the wheels. Never turn to Lock while moving: the steering wheel would lock.",r:G+", ch 5"},
+{s:"drive",q:"Your brakes fail while driving. First:",o:["Turn off the engine","Pump the brake pedal, then apply the parking brake gradually","Shift to Park","Jump out"],a:1,w:"Pump without locking the wheels, turn on hazards and engage the parking brake progressively.",r:G+", ch 5"},
+{s:"drive",q:"The engine temperature gauge reaches H. You should:",o:["Open the radiator cap to check coolant","Pull over, stop and turn off the engine; don’t open the radiator cap","Keep driving to a garage","Turn the AC on max"],a:1,w:"Opening a hot radiator cap can cause severe burns. Wait for it to cool.",r:G+", appendix III"},
+{s:"drive",q:"A red dashboard warning light stays on after starting. This means:",o:["A reminder","A problem: turn off the engine and see a mechanic","Turn signal on","Normal operation"],a:1,w:"Red = problem or risk of breakdown. Orange or yellow = reminder. Green = direction.",r:G+", appendix III"},
+{s:"drive",q:"Stuck in your car in a snowstorm, you should:",o:["Run the engine continuously with windows shut","Run the engine about 10 min per hour, exhaust clear, window slightly open","Walk to find help","Sleep to save energy"],a:1,w:"Carbon monoxide is odourless and deadly. Keep the exhaust clear and a window cracked, and stay awake.",r:G+", ch 5"},
+{s:"drive",q:"A power line falls on your car. You should:",o:["Get out and run","Stay inside; if you must leave, jump clear without touching car and ground together","Drive over it","Touch the wire to move it"],a:1,w:"Stay put and call emergency services. If you have to get out, jump so you never touch the car and the ground at the same time.",r:G+", ch 5"},
+{s:"drive",q:"Your car catches fire. After stopping and getting out, stay at least:",o:["5 m away","10 m away","30 m away","100 m away"],a:2,w:"Keep everyone at least 30 m away and call the fire department.",r:G+", ch 5"},
+{s:"drive",q:"At an accident, a motorcyclist is injured. You should:",o:["Remove their helmet","Not remove their helmet","Give them water","Sit them up"],a:1,w:"Don’t remove the helmet, give drinks or move victims unless they’re in danger, for example from fire or drowning.",r:G+", ch 5"},
+{s:"drive",q:"How do you fight a small fuel fire with an extinguisher?",o:["Aim at the top of the flames","Aim at the base of the flames","Use water","Open the hood fully first"],a:1,w:"Aim at the base. Water can spread a fuel fire.",r:G+", ch 5"},
+{s:"drive",q:"Merging onto an expressway, you should:",o:["Stop at the end of the ramp and wait for a gap","Use the whole acceleration lane to match traffic speed, then merge","Merge immediately at low speed","Merge without signalling"],a:1,w:"Signal left, check mirrors and blind spot, and use the full feeder lane. Slowing or stopping there is dangerous.",r:G+", ch 3"},
+{s:"drive",q:"When leaving an expressway, when should you start slowing down?",o:["In the travel lane, before the exit","Once you’re in the deceleration lane","On the exit ramp only","At the stop sign"],a:1,w:"Keep your speed until you’re in the deceleration lane, then brake gradually.",r:G+", ch 3"},
+{s:"drive",q:"After passing, when can you return to the right lane?",o:["As soon as your rear bumper clears theirs","When the passed vehicle is fully visible in your inside rearview mirror","After 3 seconds","When the other driver flashes headlights"],a:1,w:"Check the right blind spot, signal, and return once you can see the whole vehicle in your inside mirror.",r:G+", ch 3"},
+{s:"drive",q:"Another car is passing you. You should:",o:["Speed up","Maintain a constant speed and stay centred in your lane","Move onto the shoulder","Brake firmly"],a:1,w:"Cooperate. If they abort the pass, you may need to speed up slightly to let them back in.",r:G+", ch 3"},
+{s:"drive",q:"You must turn the wheel more than half a turn. Which technique?",o:["Palming with one hand","Hand-over-hand","Shuffle at 12 o’clock","Let it spin freely"],a:1,w:"Hand-over-hand gives control, especially at low speeds like parking.",r:G+", ch 3"},
+{s:"drive",q:"Which is TRUE about hands-free phone use while driving?",o:["It’s completely safe","It’s no safer than hand-held; the conversation is the distraction","It’s illegal","Only dangerous at night"],a:1,w:"Hands-free is legal, but the guide says it isn’t safer. The distraction is mental.",r:G+", ch 6"},
+{s:"drive",q:"The three types of distraction are:",o:["Day, night, weather","Visual, physical, intellectual","Phone, radio, passengers","Speed, noise, light"],a:1,w:"Eyes off the road, hands off the wheel, mind off driving. They can combine.",r:G+", ch 6"},
+{s:"drive",q:"To prevent fatigue on a long trip:",o:["Drive 6 h then rest","Stop every 2 h and avoid driving more than 4 h at a time","Drink coffee and keep going","Turn up the radio"],a:1,w:"Also get 8 hours’ sleep before a long trip. Microsleeps last 3–4 seconds.",r:G+", ch 6"},
+{s:"drive",q:"Which is TRUE about alcohol?",o:["It’s a stimulant","Coffee lowers your BAC","It’s a depressant; only time lowers BAC","Eating eliminates its effects"],a:2,w:"Alcohol slows the brain and impairs judgment. Coffee, food, cold showers and dancing don’t lower your BAC.",r:G+", ch 6"},
+{s:"drive",q:"How many km/h max with a compact temporary spare tire?",o:["50","80","100","No limit"],a:1,w:"Don’t exceed 80 km/h, don’t overload or tow, and replace it as soon as possible.",r:G+", ch 5"},
+{s:"drive",q:"Wild animals cause the most collisions during which months?",o:["Jan, Feb, Mar, Apr","May, June, Oct, Nov","July and August","Only in winter"],a:1,w:"Especially early morning, dusk and evening. Deer rarely travel alone.",r:G+", ch 5"},
+{s:"drive",q:"Why turn on your wipers before passing a heavy vehicle on a wet road?",o:["It’s the law","Spray from the truck will splash your windshield","To signal the truck driver","To defog"],a:1,w:"Also expect air displacement and stay out of the truck’s large blind spots.",r:G+", ch 4"},
+{s:"drive",q:"In a tunnel you should:",o:["Turn off your lights","Use low beams and keep a safe distance","Use high beams","Use hazard lights"],a:1,w:"Your eyes need time to adjust, and wind can push you on the way out.",r:G+", ch 4"},
+{s:"drive",q:"Approaching the top of a steep hill on a two-lane road, you should:",o:["Accelerate to see over","Keep right and slow before the crest","Move to the centre line","Pass the vehicle ahead"],a:1,w:"You can’t see oncoming traffic or obstacles beyond the crest.",r:G+", ch 4"},
+{s:"drive",q:"When should you avoid using cruise control?",o:["On dry highways","On snowy, icy, wet, gravel or winding roads and steep hills","On long trips","Never"],a:1,w:"Avoid it whenever you can’t drive safely at a constant speed.",r:G+", ch 5"},
+{s:"drive",q:"Most pedestrian collisions happen:",o:["Midnight to 5 a.m. on highways","Between 3 and 7 p.m. in zones of 50 km/h or less","At dawn on rural roads","On weekends only"],a:1,w:"Late afternoon in urban zones, so be extra watchful then.",r:G+", ch 4"},
+{s:"drive",q:"The “Dutch reach” means:",o:["Reaching for the parking brake","Opening your door with the hand farthest from it","Signalling with your arm","Adjusting the far mirror"],a:1,w:"Using your far hand turns your body so you see approaching cyclists, which prevents dooring.",r:G+", ch 4"},
+{s:"drive",q:"Winter tires stay flexible down to about:",o:["0 °C","−15 °C","−40 °C","−60 °C"],a:2,w:"All-season tires harden between −8 °C and −15 °C. Winter treads are also about 30% deeper.",r:G+", ch 5"},
+{s:"drive",q:"How long before driving should a block heater run?",o:["15 minutes","About 2 hours","All night","It doesn’t matter"],a:1,w:"Two hours is enough. All night just wastes electricity.",r:G+", ch 5"},
+{s:"drive",q:"Wearing a seat belt increases your chance of surviving a crash by about:",o:["10%","25%","50%","90%"],a:2,w:"About 50%. A back-seat passenger is not protected by the front seat.",r:G+", ch 1"},
+{s:"drive",q:"Which is TRUE about following a heavy truck?",o:["Its blind spots are small","Stay out of its blind spots and keep a greater distance","Tailgate to reduce wind drag","Pass it on the right"],a:1,w:"Trucks need more room to stop and turn and have large blind spots front, back and sides.",r:G+", ch 4"}
+];
+Q.forEach((q,i)=>q.id=i);
+
+const SECN={code:"Highway Safety Code",signs:"Signs & signals",drive:"Driving techniques"};
+let run=null;
+function bestText(){const b=store.get("qkt-best",null);const m=store.get("qkt-missed",[]);
+  $("q-best").textContent=(b?"Best mock score: "+b+"%. ":"")+(m.length?m.length+" question"+(m.length>1?"s":"")+" in your missed pile.":"")}
+bestText();
+function start(mode){
+  const secs=["code","signs","drive"].filter(s=>$("s-"+s).checked);
+  if(!secs.length){$("q-best").textContent="Pick at least one section.";return}
+  const len=mode||document.querySelector('input[name="len"]:checked').value;
+  let pool=Q.filter(q=>secs.includes(q.s));
+  if(len==="miss"){const m=store.get("qkt-missed",[]);pool=pool.filter(q=>m.includes(q.id));if(!pool.length){$("q-best").textContent="No missed questions yet in those sections.";return}}
+  pool=shuffle(pool);
+  if(len==="30"){const per=Math.ceil(30/secs.length);pool=shuffle(secs.flatMap(s=>pool.filter(q=>q.s===s).slice(0,per))).slice(0,30)}
+  run={qs:pool.map(q=>({q,perm:shuffle(q.o.map((_,i)=>i))})),i:0,ans:[],mock:len==="30"&&secs.length===3};
+  $("q-setup").hidden=true;$("q-res").hidden=true;$("q-run").hidden=false;drawQ();window.scrollTo({top:0});
+}
+function drawQ(){
+  const {q,perm}=run.qs[run.i];
+  $("q-pill").className="pill "+q.s;$("q-pill").textContent=SECN[q.s];
+  $("q-count").textContent=(run.i+1)+" / "+run.qs.length;
+  $("q-bar").style.width=(run.i/run.qs.length*100)+"%";
+  $("q-svg").innerHTML=q.svg?'<div class="qsvg">'+SVG[q.svg]+'</div>':"";
+  $("q-text").textContent=q.q;
+  $("q-opts").innerHTML=perm.map((oi,k)=>'<button class="opt" data-oi="'+oi+'"><span class="let">'+"ABCD"[k]+'</span><span>'+q.o[oi]+'</span></button>').join("");
+  $("q-why").hidden=true;$("q-next").hidden=true;
+  [...$("q-opts").children].forEach(b=>b.addEventListener("click",()=>answer(+b.dataset.oi)));
+}
+function answer(oi){
+  const {q}=run.qs[run.i];const ok=oi===q.a;run.ans.push({q,ok,pick:oi});
+  [...$("q-opts").children].forEach(b=>{b.disabled=true;const v=+b.dataset.oi;if(v===q.a)b.classList.add("right");else if(v===oi)b.classList.add("wrong")});
+  $("q-why").innerHTML='<b>'+(ok?"Correct.":"Not quite.")+'</b><span>'+q.w+'</span><small>Source: '+q.r+'</small>';
+  $("q-why").hidden=false;
+  const missed=new Set(store.get("qkt-missed",[]));ok?missed.delete(q.id):missed.add(q.id);store.set("qkt-missed",[...missed]);
+  $("q-next").textContent=run.i===run.qs.length-1?"See results":"Next question";
+  $("q-next").hidden=false;$("q-next").focus({preventScroll:true});
+}
+$("q-next").onclick=()=>{run.i++;run.i>=run.qs.length?results():drawQ()};
+$("q-quit").onclick=()=>{if(run&&run.ans.length){results()}else{$("q-run").hidden=true;$("q-setup").hidden=false}};
+$("q-start").onclick=()=>start();
+function results(){
+  $("q-run").hidden=true;$("q-res").hidden=false;
+  const by={};run.ans.forEach(a=>{(by[a.q.s]=by[a.q.s]||{n:0,c:0});by[a.q.s].n++;if(a.ok)by[a.q.s].c++});
+  let allPass=true;
+  $("r-rows").innerHTML=["code","signs","drive"].filter(s=>by[s]).map(s=>{const p=Math.round(by[s].c/by[s].n*100);const pass=p>=75;if(!pass)allPass=false;
+    return '<div class="score-row"><span><b>'+SECN[s]+'</b></span><div class="meter"><i style="width:'+p+'%;background:var('+(pass?"--good":"--bad")+')"></i></div><span class="mono">'+by[s].c+'/'+by[s].n+'</span><span class="verdict '+(pass?"pass":"fail")+'">'+p+'%</span></div>'}).join("")+
+    '<p class="best">The dashed line marks 75%, the pass mark for each section.</p>';
+  const tot=run.ans.filter(a=>a.ok).length, pct=Math.round(tot/run.ans.length*100);
+  $("r-head").textContent=(allPass?"Pass on every section":"Not yet: below 75% on a section")+" · "+tot+"/"+run.ans.length;
+  if(run.mock&&run.ans.length===run.qs.length){const b=store.get("qkt-best",0);if(pct>b)store.set("qkt-best",pct)}
+  const wrong=run.ans.filter(a=>!a.ok);
+  $("r-review").innerHTML=wrong.length?'<p class="eyebrow">Review what you missed</p>'+wrong.map(a=>'<div class="item"><b>'+a.q.q+'</b>Answer: '+a.q.o[a.q.a]+'<br><span class="best">'+a.q.w+'</span></div>').join(""):'<p class="lede">No misses. Try another round or switch to “Every question”.</p>';
+  bestText();window.scrollTo({top:0});
+}
+$("r-again").onclick=()=>{$("q-res").hidden=true;$("q-setup").hidden=false;bestText()};
+$("r-miss").onclick=()=>start("miss");
+})();
+</script>
+</body>
+</html>

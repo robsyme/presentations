@@ -11,6 +11,7 @@ touching the others.
 
 | Date | Deck |
 |------|------|
+| October 2026 | [Québec knowledge test prep](2026-10-quebec-knowledge-test/) (interactive study guide, not a slide deck) |
 | September 2026 | [Nextflow: the ideas before the syntax](2026-09-nextflow-ideas-before-syntax/) |
 
 ## Running one locally
