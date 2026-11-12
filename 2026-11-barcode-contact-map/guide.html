@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barcode Contact Map guide</title>
+<meta name="description" content="How to prepare linked-read barcode co-occurrence counts for the Barcode Contact Map viewer, and how to read it.">
+<style>
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5f6672; --panel: #f6f7f9; --border: #d9dce1;
+  --accent: #2563eb; --code-bg: #f3f4f6;
+  --jun-inv: #c2410c; --jun-deldup: #0e7490;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1115; --fg: #e6e8eb; --muted: #9aa1ab; --panel: #171a20; --border: #2b2f36;
+    --accent: #60a5fa; --code-bg: #1b1f26;
+    --jun-inv: #fb923c; --jun-deldup: #22d3ee;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1115; --fg: #e6e8eb; --muted: #9aa1ab; --panel: #171a20; --border: #2b2f36;
+  --accent: #60a5fa; --code-bg: #1b1f26;
+  --jun-inv: #fb923c; --jun-deldup: #22d3ee;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+main { max-width: 760px; margin: 0 auto; padding: 48px 16px 96px; }
+h1 { font-size: 34px; line-height: 1.15; font-weight: 650; letter-spacing: -0.015em; margin: 0 0 12px; }
+h2 { font-size: 23px; line-height: 1.25; font-weight: 650; margin: 56px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 17px; font-weight: 650; margin: 28px 0 8px; }
+p, ul, ol, table, pre { margin: 0 0 16px; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+a { color: var(--accent); }
+.lede { color: var(--muted); font-size: 18px; margin-bottom: 24px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 8px; }
+.button {
+  display: inline-block; padding: 9px 16px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--panel); color: var(--fg); text-decoration: none; font-weight: 550;
+}
+.button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+:root[data-theme="dark"] .button.primary { color: #0f1115; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .button.primary { color: #0f1115; } }
+.button:hover { filter: brightness(0.96); }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre {
+  font-family: var(--mono); font-size: 14px; line-height: 1.5; background: var(--code-bg);
+  border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; overflow-x: auto;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.table-wrap { overflow-x: auto; margin: 0 0 16px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 0; }
+th, td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+th { font-weight: 650; }
+td code { white-space: nowrap; }
+.muted { color: var(--muted); }
+.note { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+nav.toc { font-size: 15px; }
+nav.toc ol { margin: 0; }
+.wedge { display: inline-block; width: 0; height: 0; vertical-align: -1px; margin-right: 6px; border-style: solid; }
+.wedge.ul { border-width: 12px 12px 0 0; border-color: var(--jun-inv) transparent transparent transparent; }
+.wedge.dr { border-width: 0 0 12px 12px; border-color: transparent transparent var(--jun-inv) transparent; }
+.wedge.ur { border-width: 12px 0 0 12px; border-color: var(--jun-deldup) transparent transparent transparent; }
+.wedge.dl { border-width: 0 12px 12px 0; border-color: transparent transparent var(--jun-deldup) transparent; }
+footer { margin-top: 64px; color: var(--muted); font-size: 14px; }
+@media (max-width: 600px) {
+  main { padding-top: 32px; }
+  h1 { font-size: 28px; }
+  h2 { font-size: 20px; }
+  pre { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Barcode Contact Map</h1>
+  <p class="lede">
+    An interactive viewer for linked-read barcode co-occurrence counts along a chromosome, with
+    automatic calls for off-diagonal hotspots and junction patterns. This page covers the input
+    format, the preprocessing script, and how to read the map.
+  </p>
+  <div class="actions">
+    <a class="button primary" href="./">Open the viewer</a>
+    <a class="button" href="preprocess.py" download>Download preprocess.py</a>
+  </div>
+  <p class="muted">The viewer is a single static page. Files you open in it are read in your browser and are not uploaded anywhere.</p>
+
+  <nav class="toc" aria-label="Contents">
+    <ol>
+      <li><a href="#input">Input format</a></li>
+      <li><a href="#preprocess">Make .bcm files with preprocess.py</a></li>
+      <li><a href="#open">Open files in the viewer</a></li>
+      <li><a href="#read">Reading the map</a></li>
+      <li><a href="#method">How hotspots and junctions are called</a></li>
+      <li><a href="#limits">Limitations</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="input">1. Input format</h2>
+  <p>
+    Reads are mapped to the reference and their positions are binned (5 kb by default). For every pair of reads
+    that share a barcode, count how many such pairs land in each pair of bins. The result is one text file per
+    chromosome with three whitespace-separated columns, <code>binA_start</code>, <code>binB_start</code> and
+    <code>count</code>, and no header line:
+  </p>
+  <pre><code>0           0           1001
+0           5000        577
+5000        0           577
+5000        5000        1042
+3000000     4500000     12
+4500000     3000000     12</code></pre>
+  <ul>
+    <li>Positions are bin start coordinates in bp and must be multiples of the bin size.</li>
+    <li>The count is the number of shared-barcode read pairs with one read in each bin. Bin pairs with no shared barcodes are left out.</li>
+    <li>The matrix is symmetric: every off-diagonal pair appears twice, as <code>a b</code> and <code>b a</code>, with the same count. Diagonal cells appear once. The script checks this and stops if a mirror line is missing.</li>
+    <li>Lines can be in any order, separated by tabs or spaces. The file can be gzipped.</li>
+    <li>One chromosome per file. Contacts between chromosomes are not used.</li>
+  </ul>
+
+  <h2 id="preprocess">2. Make .bcm files with preprocess.py</h2>
+  <p>
+    <a href="preprocess.py" download><code>preprocess.py</code></a> converts each input file into a compact
+    <code>&lt;chromosome&gt;.bcm</code> bundle. It holds the contact counts plus the hotspot and junction calls. It needs
+    Python 3.10 or newer with numpy and scipy. The script declares those dependencies inline, so with
+    <a href="https://docs.astral.sh/uv/">uv</a> there is nothing to install first:
+  </p>
+  <pre><code>uv run preprocess.py --input chr1_5kb_bin.stat chr2_5kb_bin.stat.gz --fai ref.fa.fai --out bcm/</code></pre>
+  <p>This writes <code>bcm/chr1.bcm</code> and <code>bcm/chr2.bcm</code>. Without uv:</p>
+  <pre><code>python3 -m pip install numpy scipy
+python3 preprocess.py --input chr1_5kb_bin.stat --out bcm/</code></pre>
+  <p>
+    Expect well under a minute and a few GB of memory for a chromosome of around 100 Mb at 5 kb. Bundles are
+    a few MB each.
+  </p>
+  <p>To try the pipeline without real data, write a synthetic 10 Mb chromosome with a planted inversion and junction. It is the same dataset as the viewer's "Load example" button:</p>
+  <pre><code>uv run preprocess.py --synthetic --out bcm/</code></pre>
+
+  <h3>Chromosome names and lengths</h3>
+  <ul>
+    <li>With <code>--fai</code> (a samtools faidx index of the reference), each file is named after the longest sequence name that its file name starts with, followed by <code>_</code>, <code>.</code> or nothing, so <code>NC_000001.11_5kb_bin.stat</code> becomes <code>NC_000001.11</code>. The index also supplies the true chromosome length. Files that match no name in the index fall back to the rule below.</li>
+    <li>Without <code>--fai</code>, the name is the file name up to the first <code>_</code> or <code>.</code>, so <code>chr1_5kb_bin.stat</code> becomes <code>chr1</code>. The length is taken as the end of the last bin with data.</li>
+    <li><code>--name</code> sets names explicitly, given once per <code>--input</code> in the same order.</li>
+  </ul>
+
+  <h3>Options</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Option</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>--input FILE ...</code></td><td>One or more input files, one chromosome each.</td></tr>
+      <tr><td><code>--out DIR</code></td><td>Output directory; writes <code>DIR/&lt;name&gt;.bcm</code> per input.</td></tr>
+      <tr><td><code>--fai REF.fa.fai</code></td><td>Reference index for chromosome names and lengths.</td></tr>
+      <tr><td><code>--name NAME</code></td><td>Chromosome name; repeat once per input.</td></tr>
+      <tr><td><code>--bin BP</code></td><td>Bin size of the input positions (default 5000). The calling thresholds were tuned at 5 kb.</td></tr>
+      <tr><td><code>--chrom-length BP</code></td><td>Chromosome length for a single input; overrides <code>--fai</code>.</td></tr>
+      <tr><td><code>--verify FILE.bcm</code></td><td>Check a bundle's internal consistency. Add <code>--input</code> to also check it against the original counts.</td></tr>
+      <tr><td><code>--synthetic</code></td><td>Write the synthetic test chromosome to <code>DIR/synthetic.bcm</code>.</td></tr>
+      <tr><td><code>--junction-null N</code></td><td>Score N random boxes away from hotspots and print the junction score at which one false call is expected. It is a check only; the cutoff stays at 450 (see <a href="#limits">limitations</a>).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="open">3. Open files in the viewer</h2>
+  <ul>
+    <li>Click <strong>Open a .bcm file</strong>, or drag one or more <code>.bcm</code> files onto the page. With several files loaded, the Chromosome menu in the toolbar switches between them.</li>
+    <li>Zoom with the mouse wheel, a trackpad pinch or a double-click; drag to pan; Shift+drag a box to zoom into it. The go-to box takes a range in Mb, such as <code>12.3-14</code>, or two ranges for the x and y axes, such as <code>2.9-3.1; 4.4-4.6</code>.</li>
+    <li>The page address records the chromosome and view. Send it to a colleague who has the same <code>.bcm</code> files, and the view opens where you left it once they load them.</li>
+    <li>To host bundles next to the page, add <code>?src=chr1.bcm</code> (repeatable) to the address. Data on another server must allow cross-origin requests.</li>
+  </ul>
+
+  <h2 id="read">4. Reading the map</h2>
+  <p>
+    Both axes are positions along the same chromosome, so the main diagonal holds pairs of nearby bins. Linked reads
+    come from long DNA molecules, so bins within roughly one molecule length (around 100 kb) share many barcodes.
+    Further apart, only a low background remains from barcodes that happen to be reused. Shared barcodes far from the
+    diagonal mean the two regions sit close together in the sequenced genome even though the reference puts them apart.
+  </p>
+  <h3>Display modes</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Mode (key)</th><th>Shows</th></tr></thead>
+    <tbody>
+      <tr><td>Enrichment (4, default)</td><td>Only cells with clearly more shared barcodes than expected for their distance and coverage (a z-score above 2). The background stays blank, so off-diagonal signal stands out at any zoom.</td></tr>
+      <tr><td>O/E (3)</td><td>Observed over expected on a log scale: red above expected, blue below.</td></tr>
+      <tr><td>Balanced (2)</td><td>Counts divided by the coverage of the two bins.</td></tr>
+      <tr><td>Raw (1)</td><td>Counts on a log scale.</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    The bars along the top and left show each bin's long-range coverage relative to the median. Grey rows and columns
+    have too little coverage to test, often gaps or unmappable sequence. Orange bins share barcodes with everything
+    (three times the median or more), which usually means a collapsed repeat. Both kinds are excluded from calling.
+  </p>
+
+  <h3>Hotspots</h3>
+  <p>
+    Green boxes mark hotspots: regions at least 300 kb apart with significantly more shared barcodes than expected.
+    The side list ranks them by excess, the observed count minus the expected count. Tags in the list:
+  </p>
+  <ul>
+    <li><em>extended</em>: the signal is spread over many 5 kb cells, as a misjoin, rearrangement or segmental duplication would give.</li>
+    <li><em>point</em>: one 5 kb row or column holds more than 90% of the signal. This is more likely a repeat copy than a breakpoint. "Hide point-like" removes them.</li>
+    <li><em>hub N</em>: in the top 10% by the number of other hotspots sharing a 1 Mb window, which marks regions that link to many places.</li>
+  </ul>
+
+  <h3>Junctions</h3>
+  <p>
+    If reference positions A and B are actually adjacent in the sequenced genome, then a bin u away from A and a bin
+    v away from B are about u + v apart. They share barcodes the way bins that distance apart on the diagonal do. That gives a triangle
+    of signal with its right angle at (A, B), fading over about one molecule length. Which side of the corner it falls
+    on depends on how the two ends are joined. In the upper triangle, rows are the smaller coordinate A and run
+    down, and columns are B and run right:
+  </p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Wedge</th><th>Joined in the sample</th><th>Usual reading</th></tr></thead>
+    <tbody>
+      <tr><td><span class="wedge ul" aria-hidden="true"></span>up-left <code>--</code></td><td>left of A to left of B</td><td>one end of an inversion of A..B</td></tr>
+      <tr><td><span class="wedge dr" aria-hidden="true"></span>down-right <code>++</code></td><td>right of A to right of B</td><td>the other end of that inversion</td></tr>
+      <tr><td><span class="wedge ur" aria-hidden="true"></span>up-right <code>-+</code></td><td>left of A to right of B</td><td>deletion of A..B in the sample, or a misjoin</td></tr>
+      <tr><td><span class="wedge dl" aria-hidden="true"></span>down-left <code>+-</code></td><td>right of A to left of B</td><td>tandem duplication of A..B</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    The Junctions tab lists the calls by type. A <em>butterfly-inversion</em> has the up-left and down-right
+    triangles at the same corner, which is what a balanced inversion of the whole segment between A and B gives. A
+    <em>butterfly-deldup</em> has the other pair. A <em>junction</em> has a single triangle, a <em>block</em> is
+    enrichment with no corner structure, and a <em>point</em> is a single hot 5 kb line. The <code>j</code> key toggles
+    the wedges on the map.
+  </p>
+
+  <h3>Keys</h3>
+  <p>
+    With the map focused: arrow keys pan, <code>+</code> and <code>-</code> zoom, <code>0</code> resets the view,
+    <code>1</code> to <code>4</code> switch mode, <code>h</code> and <code>j</code> toggle hotspots and junctions, and
+    <code>n</code> and <code>p</code> step through the open list.
+  </p>
+
+  <h2 id="method">5. How hotspots and junctions are called</h2>
+  <h3>Expected counts</h3>
+  <p>
+    Each bin gets a coverage factor <code>f</code>: its shared-barcode count with bins at least 1 Mb away, divided by
+    the median over bins that have any. Coverage far from the diagonal reflects copy number and mappability rather than
+    molecule length. The expected count for bins <code>i</code> and <code>j</code> is</p>
+  <pre><code>expected(i, j) = E(|i - j|) * f(i) * f(j)</code></pre>
+  <p>
+    <code>E(d)</code> is the coverage-corrected count at distance <code>d</code>. Below 1 Mb it is estimated separately
+    for each distance as a trimmed mean, so a single outlier can't inflate it. Beyond 1 Mb the background is flat,
+    so one pooled constant is used. Bins with <code>f &lt; 0.1</code> (low coverage) or <code>f &ge; 3</code>
+    (stripes) are not tested.
+  </p>
+  <h3>Hotspots (50 kb)</h3>
+  <ol>
+    <li>Sum the counts into 50 kb bins and test every pair of valid bins at least 300 kb apart.</li>
+    <li>Model each count as negative binomial with mean <code>expected</code>. Fit the dispersion by maximum likelihood, separately for pairs under and over 1 Mb apart, with the most extreme 0.1% left out.</li>
+    <li>Call a cell significant when it has at least 10 read pairs, observed/expected of at least 3, and a p-value below 0.01 divided by the number of tests (Bonferroni).</li>
+    <li>Merge significant cells within two bins of each other into regions, and rank the regions by excess.</li>
+    <li>Significant cells inflate the coverage of their own bins. Their counts are therefore removed from the coverage factors and the test is run a second time.</li>
+  </ol>
+  <h3>Junctions (5 kb)</h3>
+  <ol>
+    <li>The template for a corner at (A, B) is a triangle up to 100 kb on a side. Its value at offsets (u, v) is the near-diagonal decay curve at distance u + v, times the coverage of the two bins.</li>
+    <li>For each candidate corner and each quadrant, fit the template's strength above background under the same negative binomial model. Score the fit as a likelihood ratio.</li>
+    <li>A quadrant only counts if its signal spreads in two directions away from the corner. This keeps single hot lines from posing as triangles.</li>
+    <li>Corners are scored as the best single quadrant or opposite pair. Nearby duplicates within 50 kb are merged, and the vertex is placed on a 2.5 kb grid.</li>
+    <li>The score cutoff (450) comes from scoring random boxes away from hotspots. On a chromosome of the 93 Mb it was calibrated on, it allows fewer than one expected false call. Longer chromosomes have more places to look and so more expected false calls (see <a href="#limits">limitations</a>). Each call reports its expected false-positive count and a q-value.</li>
+  </ol>
+  <p>
+    The Enrichment colour uses the same model at whatever resolution is on screen:
+    <code>z = (observed - expected) / sqrt(max(expected, 1) + phi * expected²)</code>. Only cells with
+    <code>z &gt; 2</code> are coloured. It is a display score; only the hotspot and junction lists come from the tests above.
+  </p>
+
+  <h2 id="limits">6. Limitations</h2>
+  <ul>
+    <li>Events that touch a grey low-coverage bin or an orange stripe bin are not tested.</li>
+    <li>Pairs closer than 300 kb are excluded, because normal linked-read signal dominates there.</li>
+    <li>The far tail of the counts is heavier than the model expects. Treat very small p-values as a ranking, not as exact probabilities.</li>
+    <li>The junction cutoff and the rules that assign types were calibrated on a single 93 Mb chromosome at 5 kb. For other chromosomes or bin sizes, run <code>--junction-null 150000</code> once. It prints the score at which one false junction is expected, so you can check whether 450 still fits.</li>
+    <li>An insertion of 10 to 50 kb gives two nearby junctions that are merged into one call.</li>
+  </ul>
+
+  <div class="note">
+    <code>preprocess.py --verify</code> re-checks a bundle: the header, the decoded counts against the input (with
+    <code>--input</code>), and that the stored calls can be reproduced. Run it after processing a new dataset.
+  </div>
+
+  <footer>
+    <a href="./">Open the viewer</a> &middot; <a href="preprocess.py" download>preprocess.py</a> &middot;
+    <a href="https://github.com/robsyme/presentations">Source</a>
+  </footer>
+</main>
+</body>
+</html>
