@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Presentations — Rob Syme</title>
+<title>Presentations and tools — Rob Syme</title>
 <style>
   :root {
     --dark-brand: #201637;
@@ -24,7 +24,12 @@
   }
   main { max-width: 820px; margin: 0 auto; padding: 96px 32px 120px; }
   h1 { font-size: 48px; font-weight: 300; letter-spacing: -0.02em; margin: 0; }
-  .intro { color: var(--muted); margin: 16px 0 72px; max-width: 46em; }
+  .intro { color: var(--muted); margin: 16px 0 24px; max-width: 46em; }
+  h2.section {
+    font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin: 56px 0 4px;
+  }
+  .section-note { color: var(--muted); font-size: 15px; margin: 0 0 16px; }
   ul { list-style: none; margin: 0; padding: 0; }
   li { border-top: 1px solid #3b3152; }
   li:last-child { border-bottom: 1px solid #3b3152; }
@@ -35,32 +40,48 @@
     text-decoration: none;
   }
   a.deck:hover { background: #2a1e46; }
-  a.deck:hover h2 { color: var(--brand-green); }
+  a.deck:hover h3 { color: var(--brand-green); }
   .date { font-family: var(--mono); font-size: 13px; color: var(--brand-green); }
-  h2 { font-size: 26px; font-weight: 400; margin: 6px 0 4px; letter-spacing: -0.01em; }
+  h3 { font-size: 26px; font-weight: 400; margin: 6px 0 4px; letter-spacing: -0.01em; }
   .blurb { color: var(--muted); font-size: 16px; margin: 0; }
   footer { margin-top: 72px; color: var(--muted); font-size: 14px; }
   footer a { color: var(--brand-green); }
   @media (max-width: 600px) {
     main { padding: 56px 20px 80px; }
     h1 { font-size: 34px; }
-    h2 { font-size: 21px; }
+    h3 { font-size: 21px; }
   }
 </style>
 </head>
 <body>
 <main>
-  <h1>Presentations</h1>
+  <h1>Presentations and tools</h1>
   <p class="intro">
-    Talks and workshop material by Rob Syme. Each one is a self-contained HTML page;
-    the decks move with the arrow keys.
+    Talks, workshop material and small interactive tools by Rob Syme. Each one is a
+    self-contained HTML page.
   </p>
 
+  <h2 class="section" id="presentations">Presentations</h2>
+  <p class="section-note">Slide decks. Move through them with the arrow keys.</p>
+  <ul>
+    <li>
+      <a class="deck" href="2026-09-nextflow-ideas-before-syntax/">
+        <div class="date">September 2026</div>
+        <h3>Nextflow: the ideas before the syntax</h3>
+        <p class="blurb">
+          Channels, processes, operators and tasks — a preamble to a hands-on Nextflow workshop.
+        </p>
+      </a>
+    </li>
+  </ul>
+
+  <h2 class="section" id="tools">Tools</h2>
+  <p class="section-note">Interactive pages that run in the browser.</p>
   <ul>
     <li>
       <a class="deck" href="2026-11-barcode-contact-map/">
         <div class="date">November 2026</div>
-        <h2>Barcode Contact Map</h2>
+        <h3>Barcode Contact Map</h3>
         <p class="blurb">
           An interactive viewer for linked-read barcode co-occurrence along a chromosome, with calls for
           off-diagonal hotspots and inversion junctions. Includes the preprocessing script and a guide.
@@ -70,19 +91,10 @@
     <li>
       <a class="deck" href="2026-10-quebec-knowledge-test/">
         <div class="date">October 2026</div>
-        <h2>Québec knowledge test prep</h2>
+        <h3>Québec knowledge test prep</h3>
         <p class="blurb">
           An interactive study guide for the SAAQ Class 5 knowledge test: Québec rules that trip up
           Australian drivers, notes for each test section, flashcards and a practice test.
-        </p>
-      </a>
-    </li>
-    <li>
-      <a class="deck" href="2026-09-nextflow-ideas-before-syntax/">
-        <div class="date">September 2026</div>
-        <h2>Nextflow: the ideas before the syntax</h2>
-        <p class="blurb">
-          Channels, processes, operators and tasks — a preamble to a hands-on Nextflow workshop.
         </p>
       </a>
     </li>
