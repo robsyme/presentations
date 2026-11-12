@@ -1,19 +1,26 @@
 # presentations
 
-Slide decks, published at <https://robsyme.github.io/presentations/>.
+Slide decks and small interactive tools, published at
+<https://robsyme.github.io/presentations/>.
 
-Each deck is a directory of plain static files: an `index.html` holding the slide
-markup, the small runtime that renders it, and its own assets. Nothing is built or
-compiled, and the decks do not share code, so one can be changed or deleted without
-touching the others.
+Each one is a directory of plain static files, with an `index.html` and its own
+assets. They do not share code, so one can be changed or deleted without touching the
+others. A deck holds the slide markup and the small runtime that renders it, and
+nothing in it is built or compiled. A tool may be built from source kept elsewhere;
+its directory holds the built page.
 
-## Decks
+## Presentations
 
 | Date | Deck |
 |------|------|
-| November 2026 | [Barcode Contact Map](2026-11-barcode-contact-map/) (interactive data viewer; [guide](2026-11-barcode-contact-map/guide.html), `preprocess.py` alongside) |
-| October 2026 | [Québec knowledge test prep](2026-10-quebec-knowledge-test/) (interactive study guide, not a slide deck) |
 | September 2026 | [Nextflow: the ideas before the syntax](2026-09-nextflow-ideas-before-syntax/) |
+
+## Tools
+
+| Date | Tool |
+|------|------|
+| November 2026 | [Barcode Contact Map](2026-11-barcode-contact-map/): viewer for linked-read barcode co-occurrence; [guide](2026-11-barcode-contact-map/guide.html) and `preprocess.py` alongside |
+| October 2026 | [Québec knowledge test prep](2026-10-quebec-knowledge-test/): interactive study guide |
 
 ## Running one locally
 
@@ -43,8 +50,8 @@ will present on a laptop with no network — you still need the local HTTP serve
 ## Adding a deck
 
 Copy the exported deck directory in under a `YYYY-MM-slug` name, rename its
-`*.dc.html` to `index.html`, and add a row to the table above and an entry to the root
-`index.html`. Worth doing at the same time, since each export arrives fatter than it
+`*.dc.html` to `index.html`, and add a row to the Presentations table above and an
+entry under Presentations in the root `index.html`. Worth doing at the same time, since each export arrives fatter than it
 needs to be:
 
 - Drop fonts the deck does not use, and their `@font-face` rules.
@@ -57,6 +64,13 @@ needs to be:
   costing you the newer build's print-to-PDF and `#<n>` slide links.
 - Turn off the editor's thumbnail rail. The deck in this repo does it with a short
   script that sets `no-rail` on `<deck-stage>` once the runtime has mounted it.
+
+## Adding a tool
+
+Put the built page in a `YYYY-MM-slug` directory as `index.html`, with any files it
+links to (a guide, a downloadable script) beside it. Add a row to the Tools table above
+and an entry under Tools in the root `index.html`. A tool should not load anything from
+the network, so it keeps working offline like the decks.
 
 `.nojekyll` at the repo root stops GitHub Pages from running Jekyll, which would
 otherwise refuse to serve any directory whose name begins with an underscore.
