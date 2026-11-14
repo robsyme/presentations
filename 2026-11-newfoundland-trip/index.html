@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Newfoundland, August 2027</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: trip summary and week plan on top, full-width map, list of places below. Harbour blues with outport colours for the areas. */
+  --bg:#f4f6f5; --surface:#ffffff; --ink:#18232a; --muted:#56656c; --line:#d6dedd;
+  --stj:#2f55a4; --pr:#1d7566; --bon:#7a3e8e; --east:#b0601a; --sight:#c0392b;
+  --font-display:"Literata",Georgia,serif; --font-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#11181c; --surface:#182228; --ink:#e6ecee; --muted:#9db0b8; --line:#2b3a42;
+  --stj:#8aa6f0; --pr:#4cc3ad; --bon:#c690d8; --east:#e69b55; --sight:#ff7b6b; color-scheme:dark;}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:22px}
+h1{font-family:var(--font-display);font-weight:600;font-size:2rem;line-height:1.2;margin:0;text-wrap:balance}
+h2{font-family:var(--font-display);font-weight:600;font-size:1.3rem;margin:0 0 8px;text-wrap:balance}
+.lede{color:var(--muted);margin:6px 0 0;max-width:70ch}
+section{display:flex;flex-direction:column;gap:10px}
+.trip{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.leg{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);padding:10px 12px}
+.leg .d{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.leg .w{font-weight:600}
+.leg .p{font-size:.85rem;color:var(--muted)}
+.cal-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.lg-line{display:inline-block;width:22px;height:2px;background:var(--muted);vertical-align:3px;margin-right:6px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.cal-wrap{overflow-x:auto}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(96px,1fr));gap:5px;min-width:700px}
+.cal-hd{font-size:.78rem;color:var(--muted);padding:0 4px}
+.cal-cell{position:relative;min-height:110px;border-radius:8px;padding:7px 8px 18px;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line)}
+.cal-cell .cd{font-size:.72rem;font-variant-numeric:tabular-nums;opacity:.85}
+.cal-cell .cp{font-size:.85rem;font-weight:600;line-height:1.25}
+.cal-cell .cn{font-size:.75rem;line-height:1.35}
+.mtl{background:var(--surface);color:var(--muted)}
+.mtl .cp{color:var(--ink)}
+.nl{background:#d3f0e6;color:#0b4a3c;border-color:transparent}
+.ns{background:#e4e1fb;color:#33297a;border-color:transparent}
+.seg{position:absolute;bottom:8px;height:2px;background:var(--lc);pointer-events:none}
+.sdotc{position:absolute;bottom:5px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--surface);border:2px solid var(--lc);box-sizing:border-box;z-index:1}
+.cal-cell.off{background:transparent;border-style:dashed;opacity:.45}
+@media (prefers-color-scheme:dark){.nl{background:#123d33;color:#c6efe2}.ns{background:#2a2655;color:#dcd8ff}}
+.cal-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.cal-sum div{background:var(--surface);border:1px solid var(--line);padding:9px 12px;display:flex;flex-direction:column}
+.cal-sum .k{font-size:.8rem;color:var(--muted)}
+.cal-sum .v{font-family:var(--font-display);font-size:1.3rem;font-weight:600}
+.cal-sum .s{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.week{background:var(--surface);border:1px solid var(--line);overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.78rem;white-space:nowrap}
+td.date{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted);margin-left:4px;white-space:nowrap}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font:inherit;font-size:.85rem;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,tr.row:focus-visible{outline:2px solid var(--stj);outline-offset:2px}
+.legend{display:flex;gap:14px;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px;background:var(--c)}
+#map{height:620px;border:1px solid var(--line)}
+@media (max-width:600px){#map{height:480px}h1{font-size:1.6rem}}
+.pin{display:inline-block;transform:translate(-50%,-50%);white-space:nowrap;background:#fff;color:#18232a;border:2px solid var(--c);border-radius:999px;padding:1px 8px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer;font-family:var(--font-body)}
+.pin.approx{border-style:dashed}
+.pin.half::after{content:" ½";font-weight:500;color:#56656c}
+.sight{display:inline-flex;align-items:center;gap:5px;transform:translate(-8px,-50%);white-space:nowrap;font-size:12px;font-weight:600;color:#fff;background:var(--sight);padding:2px 8px 2px 6px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer;font-family:var(--font-body)}
+.sdot{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--sight);border:1.5px solid #fff;transform:translate(-50%,-50%);box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.sight .dd{font-weight:500;opacity:.9;font-variant-numeric:tabular-nums}
+.area{transform:var(--tr,translate(-50%,-50%));display:inline-block;background:var(--c);color:#fff;border-radius:6px;padding:5px 11px;font-size:12px;line-height:1.35;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;font-family:var(--font-body)}
+.area b{font-size:13px}
+.leaflet-popup-content{margin:12px 14px;font-size:13px;line-height:1.45;min-width:220px;font-family:var(--font-body)}
+.pp h3{font-family:var(--font-display);font-size:15px;margin:0 0 2px}
+.pp .m{color:#56656c}
+.pp .price{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.list{background:var(--surface);border:1px solid var(--line);overflow-x:auto}
+tr.row{cursor:pointer}
+tr.row:hover{background:var(--bg)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px}
+.small{font-size:.75rem;color:var(--muted)}
+.note{font-size:.82rem;color:var(--muted);max-width:80ch}
+a{color:var(--stj)}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Newfoundland, August 2027</h1>
+<p class="lede">Andrew and Joan's trip from 2027-07-26 to 2027-08-23, with all four of us together in Newfoundland from 2027-08-02 to 2027-08-09: three nights in St. John's, then four nights on the Bonavista Peninsula (in Port Rexton or Bonavista). The map shows where we could stay, with prices, and the sights we plan to see. Draft as of 2026-11-13.</p>
+</header>
+
+<section aria-labelledby="h-trip">
+<h2 id="h-trip">The whole trip</h2>
+<div class="cal-legend"><span><i class="sw mtl"></i>Montreal</span><span><i class="sw nl"></i>Newfoundland · all four of us</span><span><i class="sw ns"></i>Nova Scotia · Andrew and Joan</span><span>✈ flight day</span><span><i class="lg-line"></i>same place to sleep (circles mark check-in and check-out)</span></div>
+<div class="cal-wrap"><div class="cal"><div class="cal-hd">Mon</div><div class="cal-hd">Tue</div><div class="cal-hd">Wed</div><div class="cal-hd">Thu</div><div class="cal-hd">Fri</div><div class="cal-hd">Sat</div><div class="cal-hd">Sun</div><div class="cal-cell mtl"><span class="cd">2027-07-26 <span class="fl" title="Flight day">✈</span></span><span class="cp">Montreal</span><span class="cn">Andrew, Joan land from Sydney</span><span class="seg" style="left:50%;right:-4px;--lc:#7d8b91" title="Montreal"></span><span class="sdotc" style="left:50%;--lc:#7d8b91"></span></div><div class="cal-cell mtl"><span class="cd">2027-07-27</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:-4px;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell mtl"><span class="cd">2027-07-28</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:-4px;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell mtl"><span class="cd">2027-07-29</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:-4px;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell mtl"><span class="cd">2027-07-30</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:-4px;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell mtl"><span class="cd">2027-07-31</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:-4px;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell mtl"><span class="cd">2027-08-01</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:0;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell nl"><span class="cd">2027-08-02 <span class="fl" title="Flight day">✈</span></span><span class="cp">St. John&#x27;s</span><span class="cn">All four fly in. Jellybean Row, George St</span><span class="seg" style="left:0;right:50%;--lc:#7d8b91" title="Montreal"></span><span class="sdotc" style="left:50%;--lc:#7d8b91"></span><span class="seg" style="left:50%;right:-4px;--lc:#1d7566" title="St. John's"></span><span class="sdotc" style="left:50%;--lc:#1d7566"></span></div><div class="cal-cell nl"><span class="cd">2027-08-03</span><span class="cp">Witless Bay</span><span class="cn">Puffin and whale boat. Cape Spear</span><span class="seg" style="left:-4px;right:-4px;--lc:#1d7566" title="St. John's"></span></div><div class="cal-cell nl"><span class="cd">2027-08-04</span><span class="cp">St. John&#x27;s</span><span class="cn">Regatta Day at Quidi Vidi. Signal Hill</span><span class="seg" style="left:-4px;right:-4px;--lc:#1d7566" title="St. John's"></span></div><div class="cal-cell nl"><span class="cd">2027-08-05</span><span class="cp">Port Rexton</span><span class="cn">Drive ~3 h. Skerwink Trail</span><span class="seg" style="left:-4px;right:50%;--lc:#1d7566" title="St. John's"></span><span class="sdotc" style="left:50%;--lc:#1d7566"></span><span class="seg" style="left:50%;right:-4px;--lc:#1d7566" title="Port Rexton or Bonavista"></span><span class="sdotc" style="left:50%;--lc:#1d7566"></span></div><div class="cal-cell nl"><span class="cd">2027-08-06</span><span class="cp">Bonavista</span><span class="cn">Elliston puffins, lighthouse, the Dungeon</span><span class="seg" style="left:-4px;right:-4px;--lc:#1d7566" title="Port Rexton or Bonavista"></span></div><div class="cal-cell nl"><span class="cd">2027-08-07</span><span class="cp">Trinity</span><span class="cn">Heritage village, boat tour or theatre</span><span class="seg" style="left:-4px;right:-4px;--lc:#1d7566" title="Port Rexton or Bonavista"></span></div><div class="cal-cell nl"><span class="cd">2027-08-08</span><span class="cp">Free day</span><span class="cn">Swim at Lockston Path, brewery</span><span class="seg" style="left:-4px;right:0;--lc:#1d7566" title="Port Rexton or Bonavista"></span></div><div class="cal-cell ns"><span class="cd">2027-08-09 <span class="fl" title="Flight day">✈</span></span><span class="cp">Nova Scotia</span><span class="cn">Drive to St. John&#x27;s. Rob, Amy fly to Montreal; Andrew, Joan fly to Halifax</span><span class="seg" style="left:0;right:50%;--lc:#1d7566" title="Port Rexton or Bonavista"></span><span class="sdotc" style="left:50%;--lc:#1d7566"></span></div><div class="cal-cell ns"><span class="cd">2027-08-10</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-11</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-12</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-13</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-14</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-15</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-16</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-17</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-18</span><span class="cp">Nova Scotia</span></div><div class="cal-cell ns"><span class="cd">2027-08-19</span><span class="cp">Nova Scotia</span></div><div class="cal-cell mtl"><span class="cd">2027-08-20 <span class="fl" title="Flight day">✈</span></span><span class="cp">Montreal</span><span class="cn">Andrew, Joan fly back to Montreal</span><span class="seg" style="left:50%;right:-4px;--lc:#7d8b91" title="Montreal"></span><span class="sdotc" style="left:50%;--lc:#7d8b91"></span></div><div class="cal-cell mtl"><span class="cd">2027-08-21</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:-4px;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell mtl"><span class="cd">2027-08-22</span><span class="cp">Montreal</span><span class="seg" style="left:-4px;right:0;--lc:#7d8b91" title="Montreal"></span></div><div class="cal-cell mtl"><span class="cd">2027-08-23 <span class="fl" title="Flight day">✈</span></span><span class="cp">Montreal</span><span class="cn">Andrew, Joan fly home to Sydney</span><span class="seg" style="left:0;right:50%;--lc:#7d8b91" title="Montreal"></span><span class="sdotc" style="left:50%;--lc:#7d8b91"></span></div><div class="cal-cell off"><span class="cd">2027-08-24</span></div><div class="cal-cell off"><span class="cd">2027-08-25</span></div><div class="cal-cell off"><span class="cd">2027-08-26</span></div><div class="cal-cell off"><span class="cd">2027-08-27</span></div><div class="cal-cell off"><span class="cd">2027-08-28</span></div><div class="cal-cell off"><span class="cd">2027-08-29</span></div></div></div></div>
+<div class="cal-sum">
+ <div><span class="k">Montreal</span><span class="v">7 nights</span><span class="s">2027-07-26 → 2027-08-02</span></div>
+ <div><span class="k">Newfoundland</span><span class="v">7 nights</span><span class="s">2027-08-02 → 2027-08-09</span></div>
+ <div><span class="k">Nova Scotia</span><span class="v">11 nights</span><span class="s">2027-08-09 → 2027-08-20</span></div>
+ <div><span class="k">Montreal</span><span class="v">3 nights</span><span class="s">2027-08-20 → 2027-08-23</span></div>
+</div>
+</section>
+
+<section aria-labelledby="h-week">
+<h2 id="h-week">The week in Newfoundland</h2>
+<div class="week"><table>
+<thead><tr><th>Date</th><th>Plan</th><th>Sleep</th></tr></thead>
+<tbody>
+<tr><td class="date">2027-08-02 Mon</td><td>Fly into St. John's. Jellybean Row and George St.</td><td>St. John's</td></tr>
+<tr><td class="date">2027-08-03 Tue</td><td>Puffin and whale boat tour from Witless Bay. Cape Spear, the most easterly point in North America.</td><td>St. John's</td></tr>
+<tr><td class="date">2027-08-04 Wed</td><td>Royal St. John's Regatta at Quidi Vidi Lake: rowing races and a city holiday. Signal Hill.</td><td>St. John's</td></tr>
+<tr><td class="date">2027-08-05 Thu</td><td>Drive about 3 hours to the Bonavista Peninsula. Evening walk on the Skerwink Trail.<span class="tag">drive ~3 h</span></td><td>Port Rexton or Bonavista</td></tr>
+<tr><td class="date">2027-08-06 Fri</td><td>Puffins from the cliffs at Elliston, Cape Bonavista Lighthouse, the Dungeon sea arch. Dinner at the Bonavista Social Club.</td><td>Port Rexton or Bonavista</td></tr>
+<tr><td class="date">2027-08-07 Sat</td><td>Trinity: a heritage village with a boat tour or a show at the Rising Tide Theatre.</td><td>Port Rexton or Bonavista</td></tr>
+<tr><td class="date">2027-08-08 Sun</td><td>Free day. A swim at the Lockston Path pond beach, or the Port Rexton brewery.</td><td>Port Rexton or Bonavista</td></tr>
+<tr><td class="date">2027-08-09 Mon</td><td>Drive back to St. John's and fly out.<span class="tag">drive ~3 h</span></td><td>–</td></tr>
+</tbody></table></div>
+</section>
+
+<section aria-labelledby="h-map">
+<h2 id="h-map">Map: where we could stay, and what we plan to see</h2>
+<div class="bar" role="group" aria-label="Show">
+  <button class="chip" data-a="all" aria-pressed="true">Whole area</button>
+  <button class="chip" data-a="s" aria-pressed="false">St. John's</button>
+  <button class="chip" data-a="p" aria-pressed="false">Port Rexton and Trinity</button>
+  <button class="chip" data-a="b" aria-pressed="false">Bonavista</button>
+  <button class="chip" data-a="e" aria-pressed="false">Eastport (back-up)</button>
+</div>
+<div class="legend"><span style="--c:var(--stj)"><i></i>St. John's stays</span><span style="--c:var(--pr)"><i></i>Port Rexton and Trinity</span><span style="--c:var(--bon)"><i></i>Bonavista</span><span style="--c:var(--east)"><i></i>Eastport</span><span style="--c:var(--sight)"><i style="border-radius:2px"></i>Sights (zoom in to see names and dates)</span><span>Dashed outline: approximate location. ½: one of two places for two couples.</span></div>
+<div id="map" aria-label="Map of places to stay and sights in eastern Newfoundland"></div>
+<p class="note">Use the layers button at the top right of the map to switch to satellite view. Prices are the total for all four people in Canadian dollars for the nights at that stop, as listed on 2026-11-13. Click a price for details and the listing.</p>
+</section>
+
+<section aria-labelledby="h-list">
+<h2 id="h-list">All the options</h2>
+<div class="list"><table><thead><tr><th>Area</th><th>Place</th><th>Setup</th><th style="text-align:right">Total</th><th style="text-align:right">Per couple / night</th><th>Rating</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="note">"1×4" means one place for all four of us, "2×2" means two places, one for each couple. Airbnb shows only an approximate location until you book, so those pins are a few hundred metres out at most. Airbnb totals include fees; hotel totals from Booking.com include taxes. Prices will change before we book.</p>
+</section>
+</main>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>
+const RAW=[["s", "1×4", "Cozy and bright 3-bedroom house", "Downtown", 1023, null, 47.5529, -52.71796, 0, "3 bed · 1.5 bath", "4.95 (161)", "Airbnb", "https://www.airbnb.ca/rooms/51882955?check_in=2027-08-02&check_out=2027-08-05&adults=4", "Best value downtown. Walk to George St."], ["s", "1×4", "Fabulous View of St. John's Harbour", "St. John's", 966, null, 47.5701, -52.6922, 0, "3 bed · 1 bath", "4.84 (264)", "Airbnb", "https://www.airbnb.ca/rooms/214440?check_in=2027-08-02&check_out=2027-08-05&adults=4", "Harbour views. Cheapest 3-bedroom."], ["s", "1×4", "The Merry Meeting House", "St. John's", 993, null, 47.56551, -52.7209, 0, "2 bed · 1.5 bath", "4.9 (71)", "Airbnb", "https://www.airbnb.ca/rooms/970491753810152598?check_in=2027-08-02&check_out=2027-08-05&adults=4", ""], ["s", "1×4", "Harbourfront Home with Hot Tub", "St. John's", 1377, null, 47.5641, -52.6843, 0, "2 bed · 1 bath", "4.86 (230)", "Airbnb", "https://www.airbnb.ca/rooms/817431326371489060?check_in=2027-08-02&check_out=2027-08-05&adults=4", "On the harbour, with a hot tub."], ["s", "2×2", "DoubleTree Harbourview (2 rooms)", "Downtown", 1996, null, 47.569872, -52.700464, 1, "two rooms", "8.2/10 (533)", "Booking.com", "https://www.booking.com/hotel/ca/doubletree-by-hilton-st-johns-harbourview.en-gb.html?checkin=2027-08-02&checkout=2027-08-05&group_adults=4&no_rooms=2", "2 Hill O' Chips. Taxes included."], ["s", "2×2", "Blue on Water (2 rooms)", "Water St", 2135, null, 47.561467, -52.71018, 1, "two double rooms", "9.1/10 (401)", "Booking.com", "https://www.booking.com/hotel/ca/blue-on-water.en-gb.html?checkin=2027-08-02&checkout=2027-08-05&group_adults=4&no_rooms=2", "319 Water Street. Taxes included."], ["s", "2×2", "Mitchie's Place", "Downtown", 723, ["Locke's Nest", 1356], 47.5669, -52.705, 0, "1 bed", "4.96 (74)", "Airbnb", "https://www.airbnb.ca/rooms/1387714894322257767?check_in=2027-08-02&check_out=2027-08-05&adults=2", "Pair with Locke's Nest."], ["s", "2×2", "Locke's Nest", "St. John's", 633, ["Mitchie's Place", 1356], 47.55413, -52.72462, 0, "1 bed", "4.95 (64)", "Airbnb", "https://www.airbnb.ca/rooms/1419742016177800796?check_in=2027-08-02&check_out=2027-08-05&adults=2", "Pair with Mitchie's Place."], ["e", "1×4", "Sandy Cove Beach Cabins", "Sandy Cove", 764, null, 48.63905, -53.73951, 0, "2 bed · 1 bath", "4.76 (58)", "Airbnb", "https://www.airbnb.ca/rooms/25110308?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Steps from Sandy Cove beach. Freshwater swim at Crooked Tree Park. Two cabins as a 2×2 would be $1,528."], ["e", "1×4", "The Beach House in Sandy Cove", "Sandy Cove", 1155, null, 48.64077, -53.73782, 0, "3 bed · 1.5 bath", "4.91 (145)", "Airbnb", "https://www.airbnb.ca/rooms/23468148?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Overlooks Sandy Cove Beach."], ["e", "1×4", "Bren's Place", "Salvage road", 1219, null, 48.66262, -53.683, 0, "3 bed · 1 bath", "4.98 (52)", "Airbnb", "https://www.airbnb.ca/rooms/891323649397508611?check_in=2027-08-05&check_out=2027-08-09&adults=4", "10–15 min drive to the beaches."], ["e", "1×4", "Quaint home with ocean breeze", "Salvage", 1220, null, 48.69041, -53.65417, 0, "4 bed · 1 bath", "4.92 (119)", "Airbnb", "https://www.airbnb.ca/rooms/600876164241348995?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Historic fishing village at the tip of the peninsula."], ["e", "2×2", "Noah's Cottage", "Sandringham", 1183, ["Ally's Cottage", 2366], 48.65989, -53.84261, 0, "2 bed · 1 bath", "4.91 (23)", "Airbnb", "https://www.airbnb.ca/rooms/1207097527993470257?check_in=2027-08-05&check_out=2027-08-09&adults=2", "Next door to Ally's Cottage, same host. A/C, fireplace, fire pit."], ["e", "2×2", "Ally's Cottage", "Sandringham", 1183, ["Noah's Cottage", 2366], 48.65994, -53.84415, 0, "2 bed · 1 bath", "5.0 (22)", "Airbnb", "https://www.airbnb.ca/rooms/1207097581746653934?check_in=2027-08-05&check_out=2027-08-09&adults=2", "Next door to Noah's Cottage, same host."], ["e", "Either", "White Sails Inn", "Eastport", null, null, 48.6535, -53.757, 2, "cottages, 3- and 5-bed beach houses", "", "Direct", "https://www.newfoundlandlabrador.com/plan-and-book/accommodations/213623", "38 Beach Road. Price on request."], ["e", "Either", "Seaview Cottages", "Eastport", null, null, 48.652, -53.761, 2, "oceanfront 1- and 2-bed units", "", "Direct", "https://www.newfoundlandlabrador.com/plan-and-book/accommodations/212907", "Beach Road. Price on request."], ["p", "1×4", "Skiff Cove House", "Port Rexton", 1354, null, 48.3874, -53.3287, 0, "3 bed · 1 bath", "4.96 (327)", "Airbnb", "https://www.airbnb.ca/rooms/19806359?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Very well reviewed. Close to the Skerwink Trail, the brewery and Trinity."], ["p", "1×4", "Sister Homes – Ship Cove House", "Port Rexton", 844, null, 48.38957, -53.33037, 0, "3 bed · 1.5 bath", "4.92 (305)", "Airbnb", "https://www.airbnb.ca/rooms/19861059?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Best value 3-bedroom in Port Rexton."], ["p", "1×4", "Peaceful Getaway in Port Rexton", "Port Rexton", 1274, null, 48.3943, -53.3208, 0, "3 bed · 2 bath", "4.94 (49)", "Airbnb", "https://www.airbnb.ca/rooms/38454892?check_in=2027-08-05&check_out=2027-08-09&adults=4", ""], ["p", "1×4", "Middle Hill Cottage", "Port Rexton", 633, null, 48.37832, -53.33997, 0, "2 bed · 1 bath", "4.92 (238)", "Airbnb", "https://www.airbnb.ca/rooms/45524329?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Cheapest here. Walk to the Skerwink Trail and the brewery. Pairs with Walk to Skerwink ($1,002) as a 2×2 for $1,635."], ["p", "2×2", "Walk to Skerwink", "Port Rexton", 1002, ["Middle Hill Cottage", 1635], 48.38629, -53.33641, 0, "2 bed · 1 bath", "4.81 (127)", "Airbnb", "https://www.airbnb.ca/rooms/52891555?check_in=2027-08-05&check_out=2027-08-09&adults=2", "About 1 km from Middle Hill Cottage. Different hosts."], ["p", "1×4", "Christian's Croft", "Trinity", 1598, null, 48.36676, -53.35718, 0, "3 bed · 2 bath", "4.98 (62)", "Airbnb", "https://www.airbnb.ca/rooms/1213628797202709500?check_in=2027-08-05&check_out=2027-08-09&adults=4", "In Trinity itself. Walk to the historic town and the theatre."], ["b", "1×4", "Bonavista's East Coast Cottage", "Bonavista", 612, null, 48.66943, -53.1035, 0, "2 bed · 1 bath", "4.96 (350)", "Airbnb", "https://www.airbnb.ca/rooms/31958639?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Cheapest found. North side of town, toward the lighthouse and the Dungeon."], ["b", "1×4", "Nan's and Pop's New Beach House", "Bonavista", 675, null, 48.65296, -53.11791, 0, "2 bed · 1.5 bath", "4.98 (373)", "Airbnb", "https://www.airbnb.ca/rooms/38119816?check_in=2027-08-05&check_out=2027-08-09&adults=4", ""], ["b", "1×4", "The Harbour House", "Bonavista", 931, null, 48.6522, -53.1119, 0, "2 bed · 1 bath", "4.97 (133)", "Airbnb", "https://www.airbnb.ca/rooms/904324784451889779?check_in=2027-08-05&check_out=2027-08-09&adults=4", "Heart of town. Walk to restaurants and the harbour."], ["b", "1×4", "Mattea Cottage", "Bonavista", 1179, null, 48.64385, -53.10703, 0, "2 bed · 1.5 bath", "4.99 (90)", "Airbnb", "https://www.airbnb.ca/rooms/1192003543898679622?check_in=2027-08-05&check_out=2027-08-09&adults=4", "South end of town, nearer Elliston."], ["b", "2×2", "Jeanne's Place (2 units)", "Bonavista", 1758, null, 48.65833, -53.10642, 0, "two 2-bed units", "4.93 (258) / 4.88 (484)", "Airbnb", "https://www.airbnb.ca/rooms/849279432744662145?check_in=2027-08-05&check_out=2027-08-09&adults=2", "One building, same host: $1,007 + $751."], ["b", "2×2", "Rolling Cove Suites ×2", "Bonavista", 1610, null, 48.65819, -53.11544, 0, "two 1-bed suites", "4.85 (370)", "Airbnb", "https://www.airbnb.ca/rooms/42735282?check_in=2027-08-05&check_out=2027-08-09&adults=2", "2 × $805. Ask the host whether a second suite is free."]];
+const POI=[["Witless Bay puffin and whale boats", 47.28, -52.83, 1, "2027-08-03", "approx."], ["Cape Spear", 47.5236, -52.6195, 1, "2027-08-03", "approx."], ["Signal Hill", 47.5702, -52.6813, 1, "2027-08-04", "approx."], ["Quidi Vidi Lake: Regatta Day", 47.58, -52.693, 1, "2027-08-04", "approx."], ["Skerwink Trail", 48.3793, -53.339, 0, "2027-08-05", "NL Tourism"], ["Trinity", 48.3664, -53.3594, 1, "2027-08-07", "approx."], ["Lockston Path Provincial Park: pond beach", 48.4375, -53.3625, 0, "2027-08-08", "NL Tourism"], ["Elliston puffin viewing site", 48.629451, -53.019071, 0, "2027-08-06", "NL Tourism"], ["Cape Bonavista Lighthouse", 48.7008, -53.0853, 1, "2027-08-06", "approx."]];
+const AREAS={s:{name:"St. John's",c:"var(--stj)",nights:3,dates:"2027-08-02 → 2027-08-05",tr:"translate(-50%,-50%)"},p:{name:"Port Rexton and Trinity",c:"var(--pr)",nights:4,dates:"2027-08-05 → 2027-08-09",tr:"translate(-50%,6px)"},b:{name:"Bonavista",c:"var(--bon)",nights:4,dates:"2027-08-05 → 2027-08-09",tr:"translate(6px,-50%)"},e:{name:"Eastport (back-up)",c:"var(--east)",nights:4,dates:"2027-08-05 → 2027-08-09",tr:"translate(calc(-100% - 6px),-50%)"}};
+const D=RAW.map((r,i)=>({i,area:r[0],setup:r[1],name:r[2],town:r[3],price:r[4],pair:r[5],lat:r[6],lng:r[7],exact:r[8],rooms:r[9],rating:r[10],src:r[11],url:r[12],note:r[13]}));
+D.forEach(d=>{const n=AREAS[d.area].nights;d.tot=d.pair?d.pair[1]:d.price;d.pcn=d.tot==null?null:Math.round(d.pair?d.price/n:d.tot/2/n);});
+const fmt=n=>n==null?"on request":"$"+n.toLocaleString("en-CA");
+let fA="all";
+
+const osm=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'});
+const sat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Imagery &copy; Esri, Maxar, Earthstar Geographics"});
+const map=L.map("map",{layers:[osm],zoomSnap:0.5});
+L.control.layers({"Map":osm,"Satellite":sat},null,{position:"topright"}).addTo(map);
+L.control.scale({metric:true,imperial:false}).addTo(map);
+const allB=L.latLngBounds(D.map(d=>[d.lat,d.lng]).concat(POI.map(p=>[p[1],p[2]])));
+map.fitBounds(allB.pad(0.08));
+let fitted=false;new ResizeObserver(()=>{const s=map.getSize();if(s.x>0&&s.y>0){map.invalidateSize();if(!fitted){fitted=true;map.fitBounds(allB.pad(0.08));refresh();}}}).observe(document.getElementById("map"));
+
+function popup(d){const a=AREAS[d.area];
+ const pairTxt=d.pair?`<div class="m">One of a pair with ${d.pair[0]}: ${fmt(d.pair[1])} for both</div>`:"";
+ const loc=d.exact===1?"Exact address":d.exact===2?"Placed by street name":"Approximate location";
+ return `<div class="pp"><h3>${d.name}</h3><div class="m">${d.town} · ${a.dates}</div>
+ <div style="margin:6px 0 2px"><span class="price">${fmt(d.price)}</span> <span class="m">${d.setup}${d.pcn!=null?" · about $"+d.pcn+" per couple per night":""}</span></div>${pairTxt}
+ <div>${d.rooms}${d.rating?" · rated "+d.rating:""}</div>${d.note?`<div class="m" style="margin-top:4px">${d.note}</div>`:""}
+ <div class="m" style="margin-top:4px">${loc} · ${d.src}</div><div style="margin-top:6px"><a href="${d.url}" target="_blank" rel="noopener">See the listing</a></div></div>`;}
+
+const markers={};
+D.forEach(d=>{const cls=["pin",d.exact===1?"":"approx",d.pair?"half":""].join(" ");
+ const m=L.marker([d.lat,d.lng],{icon:L.divIcon({className:"",html:`<span class="${cls}" style="--c:${AREAS[d.area].c}">${d.price==null?"ask":fmt(d.price)}</span>`,iconSize:null}),riseOnHover:true,title:d.name});
+ m.bindPopup(popup(d),{offset:[0,-8]});markers[d.i]=m;});
+const sIconBig=p=>L.divIcon({className:"",html:`<span class="sight">${p[0]} <span class="dd">${p[4].slice(5)}</span></span>`,iconSize:null});
+const sIconDot=L.divIcon({className:"",html:`<span class="sdot"></span>`,iconSize:null});
+const sights=POI.map(p=>L.marker([p[1],p[2]],{icon:sIconDot,zIndexOffset:-200,title:p[0]+" ("+p[4]+")"}).bindPopup(`<div class="pp"><h3>${p[0]}</h3><div class="m">Planned for ${p[4]}${p[3]?" · position approximate":""}</div></div>`));
+const areaMarkers={};
+Object.keys(AREAS).forEach(k=>{AREAS[k].bounds=L.latLngBounds(D.filter(d=>d.area===k).map(d=>[d.lat,d.lng]));});
+function areaHtml(k){const a=AREAS[k];const pts=D.filter(d=>d.area===k&&d.price!=null);const min=Math.min(...pts.map(d=>d.tot));
+ return `<span class="area" style="--c:${a.c};--tr:${a.tr}"><b>${a.name}</b><br>${D.filter(d=>d.area===k).length} places · from ${fmt(min)}</span>`;}
+function refresh(){const detail=map.getZoom()>=10;
+ D.forEach(d=>{const m=markers[d.i];const on=detail&&(fA==="all"||d.area===fA);if(on&&!map.hasLayer(m))m.addTo(map);if(!on&&map.hasLayer(m))m.remove();});
+ sights.forEach((m,i)=>{m.setIcon(detail?sIconBig(POI[i]):sIconDot);if(!map.hasLayer(m))m.addTo(map);});
+ Object.keys(AREAS).forEach(k=>{const vis=!detail&&(fA==="all"||fA===k);
+  if(!areaMarkers[k])areaMarkers[k]=L.marker(AREAS[k].bounds.getCenter(),{icon:L.divIcon({className:"",html:areaHtml(k),iconSize:null}),title:AREAS[k].name}).on("click",()=>zoomArea(k));
+  if(vis&&!map.hasLayer(areaMarkers[k]))areaMarkers[k].addTo(map);if(!vis&&map.hasLayer(areaMarkers[k]))areaMarkers[k].remove();});}
+map.on("zoomend",refresh);
+function zoomArea(k){map.flyToBounds(AREAS[k].bounds.pad(0.25),{maxZoom:14,duration:0.8});}
+function setArea(a){fA=a;document.querySelectorAll("[data-a]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.a===a)));
+ if(a==="all")map.flyToBounds(allB.pad(0.08),{duration:0.8});else zoomArea(a);refresh();renderRows();}
+document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>setArea(b.dataset.a));
+
+function renderRows(){const tb=document.getElementById("rows");const order={s:0,p:1,b:2,e:3};
+ const rows=D.filter(d=>fA==="all"||d.area===fA).sort((a,b)=>order[a.area]-order[b.area]||((a.price??1e9)-(b.price??1e9)));
+ tb.innerHTML=rows.map(d=>{const a=AREAS[d.area];return `<tr class="row" tabindex="0" data-i="${d.i}" style="--c:${a.c}"><td><span class="dot"></span>${a.name}</td><td>${d.name}<div class="small">${d.town}${d.pair?" · pair with "+d.pair[0]+", "+fmt(d.pair[1])+" for both":""}</div></td><td>${d.setup}</td><td class="n">${fmt(d.price)}</td><td class="n">${d.pcn!=null?"$"+d.pcn:"–"}</td><td>${d.rating||"–"}</td></tr>`;}).join("");
+ tb.querySelectorAll("tr.row").forEach(tr=>{const go=()=>{const d=D[+tr.dataset.i];map.flyTo([d.lat,d.lng],15,{duration:0.6});map.once("moveend",()=>{refresh();markers[d.i].openPopup();});document.getElementById("map").scrollIntoView({behavior:"smooth",block:"center"});};tr.onclick=go;tr.onkeydown=e=>{if(e.key==="Enter")go();};});}
+renderRows();refresh();
+</script>
+</body>
+</html>
