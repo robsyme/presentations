@@ -14,6 +14,7 @@ its directory holds the built page.
 | Date | Deck |
 |------|------|
 | September 2026 | [Nextflow: the ideas before the syntax](2026-09-nextflow-ideas-before-syntax/) |
+| July 2025 | [Layering Down the Law](2025-07-layering-down-the-law/): Amy Preston-Samson's DCL defence, built on impress.js rather than the deck runtime described below |
 
 ## Tools
 
