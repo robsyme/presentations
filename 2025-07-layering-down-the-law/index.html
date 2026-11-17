@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Layering Down the Law</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./vendor/fonts/montserrat.css">
+    <link rel="stylesheet" href="./css/presentation.css">
+    <script src="./vendor/d3.v7.min.js"></script>
+</head>
+
+<body>
+    <div id="impress" data-width="1920" data-height="1080">
+
+        <div id="title" class="step slide" data-x="100" data-y="100" data-z="-200" data-rotate-y="45" >
+            <div style="width: 40%"></div>
+            <div style="display: flex; flex-direction: column; justify-content: center">
+                <h1>Layering Down the Law</h1>
+                <h2>DCL Oral Defence Presentation - 14 July 2025</h2>
+                <h3>Amy Preston-Samson (DCL Candidate, McGill Faculty of Law)</h3>
+            </div>
+        </div>
+
+        <div id="photo" class="step" data-x="2150" data-y="-350" data-z="0">
+            <div class="frame">
+                <div class="border">
+                    <img id="bw-photo"width="400px" src="img/pete-f-yezXcVbPtfw-unsplash.jpg" alt="Photo" />
+                </div>
+            </div>
+        </div>
+
+        <div id="ldtl-title-slide-3" class="step slide"></div>
+        <!-- <div id="ldtl-ed12" class="step skip" data-y="100" data-scale="1">
+            <div class="book">
+                <img src="img/laying-down-the-law-ed12-clean.png" alt="Laying Down the Law Edition 12" />
+                <div class="spine" style="background: rgb(0, 0, 0);"></div>
+            </div>
+        </div> -->
+        <div id="ldtl-ed1" class="step skip" data-x="-1960" data-z="100" data-y="100">
+            <div class="book">
+                <img src="img/laying-down-the-law-ed1-clean.png" alt="Laying Down the Law Edition 1" />
+                <div class="spine" style="background: rgb(216 49 54);"></div>
+            </div>
+        </div>
+
+        <div id="ldtl-ed2" class="step skip" data-x="-1640">
+            <div class="book">
+                <img src="img/laying-down-the-law-ed2-clean.png" alt="Laying Down the Law Edition 2" />
+                <div class="spine" style="background: rgb(1 105 81);"></div>
+            </div>
+        </div>
+
+        <div id="ldtl-ed3" class="step skip" data-x="-1220">
+            <div class="book">
+                <img src="img/laying-down-the-law-ed3-clean.png" alt="Laying Down the Law Edition 3" />
+                <div class="spine" style="background: rgb(157 135 187);"></div>
+            </div>
+        </div>
+        <div id="ldtl-ed4" class="step skip" data-x="-800">
+            <div class="book">
+                <img src="img/laying-down-the-law-ed4-clean.png" alt="Laying Down the Law Edition 4" />
+                <div class="spine" style="background: rgb(2 48 110);"></div>
+            </div>
+        </div>
+
+        <div id="ldtl-ed5" class="step skip" data-x="-250">
+            <div class="book">
+                <img src="img/laying-down-the-law-ed5-clean.png" alt="Laying Down the Law Edition 5" />
+                <div class="spine" style="background: rgb(1 105 81);"></div>
+            </div>
+        </div>
+
+        <div id="uwa" class="step" data-x="450" data-y="-50"></div>
+
+        <div id="uwa-law-library" class="step skip" data-x="50" data-y="-350" data-z="0">
+            <div class="frame">
+                <div class="border">
+                    <img width="300px" src="img/uwa-law-library.png" alt="UWA Law Library" />
+                </div>
+            </div>
+        </div>
+
+        <div id="ldtl-ed5-2" class="step skip" data-x="-250" data-y="100" data-z="100"></div>
+
+        <div id="ldtl-ed5-cartoon" class="step slide" data-x="-150" data-y="570" data-z="0" data-rotate-y="0">
+            <img src="img/ldtl-ed5-cartoon.png" style="height: 600px" />
+        </div>
+
+        <div id="ldtl-ed5-excerpts" class="step slide" data-x="-150" data-y="570" data-z="0" data-rotate-y="0">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end">
+                <h3>The Uninhabited Country Principle</h3>
+                <img src="img/ldtl-ed5-exerpt1.png" style="width: 100%; height: auto;" />
+                <h4 class="chapter">Chapter 1</h4>
+            </div>
+            <div id="exerpt2" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end">
+                <h3>Its Application to Australia</h3>
+                <img src="img/ldtl-ed5-exerpt2.png" style="width: 100%; height: auto;" />
+                <h4 class="chapter">Chapter 2</h4>
+            </div>
+            <div id="exerpt3" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end">
+                <h3>The Received Black Box of English Law</h3>
+                <img src="img/ldtl-ed5-exerpt3.png" style="width: 100%; height: auto;" />
+                <h4 class="chapter">Chapter 3</h4>
+            </div>
+        </div>
+
+        <div id="ldtl-ed5-hath" class="step" data-x="-680" data-y="750" data-z="0" data-scale="0.35"></div> 
+        
+        <div id="blackstone-intro" class="step" data-x="-650" data-y="1000" data-z="200" data-scale="1"></div> 
+
+        <div id="blackstone-frontmatter" class="step slide" data-x="-650" data-y="1270" data-z="0" data-scale="0.6" style="justify-content: space-around">
+            <img src="img/blackstone-frontmatter.png" style="border: 3px solid #000;"/>
+            <img src="img/blackstone-page.png" />
+        </div> 
+
+        <div id="blackstone-footnotes" class="step" data-x="-400" data-y="1500" data-scale="0.17"></div>
+
+        <div id="salk-content" class="step slide" data-y="2100" data-scale="1" style="justify-content: space-around">
+            <div style="max-width: 33%; display: flex; flex-direction: column; align-items: center">
+                <h3>Salk → Salkeld's Reports (1718)</h3>
+                <img src="img/salk-frontmatter.png" style="width: auto; max-height: 800px;" />
+            </div>
+            <div id="salk-blankard" style="max-width: 33%; display: flex; flex-direction: column; align-items: center;">
+                <h3>Salk 411 → Blankard v Galdy</h3>
+                <img src="img/salk-blankard.png" style="width: auto; max-height: 800px;" />
+            </div>
+            <div id="salk-smith" style="max-width: 33%; display: flex; flex-direction: column; align-items: center;">
+                <h3>Salk 666 → Smith v Browne & Cooper</h3>
+                <img src="img/salk-smith.png" style="width: auto; max-height: 800px;" />
+            </div>
+        </div>
+
+        <div id="blankard-focus" class="step" data-x="-450" data-y="2400" data-scale="0.25"></div> 
+
+        <div id="salk-overview-2" class="step" data-x="-450" data-y="2100" data-scale="1"></div>
+
+        <div id="smith-focus" class="step" data-x="140" data-y="2250" data-scale="0.25"></div>
+
+        <div id="peerwilliams-content" class="step slide"  data-x="1170" data-y="2100" data-scale="1" style="justify-content: space-evenly">
+            <div style="max-width: 50%; display: flex; flex-direction: column; align-items: center;">
+                <h3>P. Wms → Peere William's Reports (1740)</h3>
+                <img src="img/peerwilliams-frontmatter.png" style="width: auto; max-height: 800px;" />
+            </div>
+            <div style="max-width: 50%; display: flex; flex-direction: column; align-items: center;">
+                <h3>P. Wms 75 → Memorandum, 9th August, 1722</h3>
+                <img src="img/peerwilliams-content.png" style="width: auto; max-height: 800px;" />
+            </div>
+        </div>
+
+        <div id="salk-overview-3" class="step" data-x="-450" data-y="2100" data-scale="1" data-rotate-y="0"></div>
+
+
+        <div id="report-mod" class="step skip report noClick slide" data-x="-650" data-y="2100" data-z="-500" data-scale="1">
+            <h3></h3>
+            <img src="img/reports-mod.png" style="max-height: 800px;" />
+        </div>
+        
+        <div id="report-comb" class="step skip report noClick slide" data-x="-250" data-y="2100" data-z="500" data-scale="1">
+            <h3></h3>
+            <img src="img/reports-comb.png" style="max-height: 800px;" />
+        </div>
+        
+        <div id="report-holt" class="step skip slide report noClick" data-x="-50" data-y="2100" data-z="1000" data-scale="1">
+            <h3></h3>
+            <img src="img/reports-holt.png" style="max-height: 800px;" />
+        </div>
+
+        <div id="salk-overview-4" class="step" data-x="-1100" data-y="2100" data-scale="1" data-rotate-y="-25" data-z="1000"></div>
+
+        <div id="salk-overview-5" class="step" data-x="-450" data-y="2100" data-z="0" data-scale="1" data-rotate-y="0"></div>
+
+        <div id="salk-overview-6" class="step" data-x="-450" data-y="2140" data-z="0" data-scale="0.3" data-rotate-y="0"></div>
+
+        <div id="salk-table" class="step slide" data-x="-450" data-y="3000" data-z="0" data-scale="0.9" data-rotate-y="0">
+            <img src="img/salk-table.png" />
+        </div>
+
+        <div id="blackstone-focus-2" class="step" data-x="-650" data-y="1270" data-z="0" data-scale="0.6"></div> 
+
+        <div id="blackstone-focus-3" class="step" data-x="-1400" data-y="1250" data-scale="0.5" data-rotate-y="-25"></div> 
+        
+        <div id="blackstone-focus-3-2" class="step" data-x="-1400" data-y="1250" data-scale="0.5" data-rotate-y="-25"></div> 
+
+        <!-- <div id="blackstone-focus-3-3" class="step" data-x="-1400" data-y="1250" data-scale="0.5" data-rotate-y="0"></div>  -->
+        <div id="blackstone-focus-3-3" class="step" data-x="-1200" data-y="1250" data-z="-1000" data-scale="0.5"></div>
+        
+        <div id="bb-13" class="step skip bb notdictionary slide" data-x="-650" data-y="1250" data-z="-200" data-scale="0.5">
+            <img src="img/bb-13.png"/>
+        </div>
+
+        <div id="bb-12" class="step skip bb notdictionary slide" data-x="-750" data-y="1250" data-z="-400" data-scale="0.5">
+            <img src="img/bb-12.png" />
+        </div>
+
+        <div id="bb-11" class="step skip bb notdictionary slide" data-x="-850" data-y="1250" data-z="-600" data-scale="0.5">
+            <img src="img/bb-11.png" />
+        </div>
+
+        <div id="bb-10" class="step skip bb notdictionary slide" data-x="-950" data-y="1250" data-z="-800" data-scale="0.5">
+            <img src="img/bb-10.png" />
+        </div>
+
+        <div id="bb-9" class="step skip bb dictionary slide" data-x="-1050" data-y="1250" data-z="-1000" data-scale="0.5">
+            <img src="img/bb-9.png" />
+            <img src="img/bb-content.png" />
+        </div>
+
+        <div id="bb-8" class="step skip bb notdictionary slide" data-x="-1150" data-y="1250" data-z="-1200" data-scale="0.5">
+            <img src="img/bb-8.png" />
+        </div>
+
+        <div id="bb-7" class="step skip bb notdictionary slide" data-x="-1250" data-y="1250" data-z="-1400" data-scale="0.5">
+            <img src="img/bb-7.png" />
+        </div>
+
+        <div id="bb-6" class="step skip bb notdictionary slide" data-x="-1350" data-y="1250" data-z="-1600" data-scale="0.5">
+            <img src="img/bb-6.png" />
+        </div>
+
+        <div id="bb-5" class="step skip bb notdictionary slide" data-x="-1450" data-y="1250" data-z="-1800" data-scale="0.5">
+            <img src="img/bb-5.png" />
+        </div>
+
+        <div id="bb-4" class="step skip bb notdictionary slide" data-x="-1550" data-y="1250" data-z="-2000" data-scale="0.5">
+            <img src="img/bb-4.png" />
+        </div>
+
+        <div id="bb-3" class="step skip bb notdictionary slide" data-x="-1650" data-y="1250" data-z="-2200" data-scale="0.5">
+            <img src="img/bb-3.png" />
+        </div>
+
+        <div id="bb-2" class="step skip bb notdictionary slide" data-x="-1750" data-y="1250" data-z="-2400" data-scale="0.5">
+            <img src="img/bb-2.png" />
+        </div>
+
+        <div id="bb-1" class="step skip bb notdictionary slide" data-x="-1850" data-y="1250" data-z="-2600" data-scale="0.5">
+            <img src="img/bb-1.png" />
+        </div>
+
+        <div id="blackstone-focus-4" class="step" data-x="-900" data-y="1000" data-scale="0.5" data-z="700" data-rotate-y="0"></div> 
+
+        <div id="library-list" class="step skip noClick slide" data-x="-920" data-y="600" data-z="0" data-scale="0.5">
+            <img src="img/library-list.png" style="width: 100%; height: auto;" />
+        </div>
+
+        <div id="blackstone-focus-5" class="step" data-x="-900" data-y="1000" data-scale="0.5" data-z="700" data-rotate-y="0"></div> 
+
+        <div id="overview" class="step" data-x="-900" data-y="1500" data-z="2700" data-scale="1" data-rotate-y="0"></div>
+
+        <div id="overview-pile" class="step noClick slide" style="flex-direction: column" data-x="-900" data-y="1500" data-z="2700" data-scale="1" data-rotate-y="0">
+            <div class="frame" style="width: 800px">
+                <div class="border">
+                    <img src="img/pile.png" style="width: 800px"/>
+                </div>
+            </div>
+            <h3> Photo credit: Gustavo Alejandro Espinosa Reyes (Unsplash) </h3>
+        </div>
+        
+        <div id="overview-neat" class="step noClick slide" style="flex-direction: column" data-x="-900" data-y="1500" data-z="2700" data-scale="1" data-rotate-y="0">
+            <div class="frame" style="width: 800px">
+                <div class="border">
+                    <img src="img/overview-neat.png" style="width: 800px"/>
+                </div>
+            </div>
+            <h3>Photo credit: Brendon Pearce (Unsplash)</h3>
+        </div>
+
+        <div id="overview-2" class="step" data-x="-900" data-y="1500" data-z="2700" data-scale="1" data-rotate-y="0"></div>
+
+        <div id="overview-chapters" class="step" data-x="-100" data-y="550" data-z="0" data-rotate-y="0"></div>
+
+        <div id="overview-chapters-4" class="slide step" data-x="-400" data-y="200" data-z="-200" data-rotate-y="40" style="align-items: center;">
+            <div style="width: 0"></div>
+            <h4 class="chapter">Chapter 4</h4>
+        </div>
+
+        <div id="finale" class="slide step slide" data-x="-350" data-y="200" data-z="-150" data-rotate-y="40">
+            <div class="frame finale">
+                <div class="border">
+                    <img src="img/laying-down-the-law-ed5-clean.png" alt="Laying Down the Law Edition 4" />
+                </div>
+            </div>
+        </div>
+
+        <div id="thankyou" class="slide step" data-y="320" data-rotate-y="40">
+            <div id="thankyou-text">
+                <h1>Thankyou</h1>
+                <h3>Slides with assistance from Rob Syme</h3>
+            </div>
+        </div>
+
+        <div id="timeline" class="step skip noClick" data-x="0" data-y="000" data-z="0" data-scale="3.2" data-rotate-y="0">
+            <div id="timeline-chart"></div>
+        </div>
+    </div>
+
+    <script src="js/impress.js"></script>
+    <script src="js/timeline.js"></script>
+    <script>impress().init()</script>
+</body>
+
+</html>

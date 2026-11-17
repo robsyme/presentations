@@ -1,0 +1,760 @@
+.slide h1, .slide h2, .slide h3, .slide h4 {
+    text-align: center;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.slide h1 {
+    font-size: 5em;
+    font-weight: 700;
+}
+
+.slide h2 {
+    font-size: 3em;
+    font-weight: 300;
+}
+
+.slide h3 {
+    font-size: 2em;
+    color: #444;
+    font-weight: 300;
+}
+
+.slide h4.chapter {
+    font-size: 2em;
+    font-weight: 700;
+    color: #016b54;
+}
+
+.book, .book::after, .book::before {
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateY(-15deg);
+    transition: 1s ease;
+    animation: 1s ease 0s 1 initAnimation;
+}
+
+
+/* Start of Selection */
+.active .book,
+.impress-on-timeline .book {
+    transform: rotateY(0deg);
+}
+
+/* End of Selection */
+
+.book > :first-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 300px;
+    transform: translateZ(17.5px);
+    background-color: #01060f;
+    border-radius: 0 5px 5px 0;
+    box-shadow: 5px 5px 20px #66666641;
+}
+
+.spine {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 35px;
+    height: 300px;
+    border-radius: 0 2px 2px 0;
+    transform: translateX(-15px) rotateY(90deg);
+}
+
+.book::before {
+    position: absolute;
+    content: ' ';
+    left: 0;
+    top: 8px;
+    width: 33px;
+    border-radius: 0 5px 5px 0;
+    height: 284px;
+    transform: translateX(174.5px) rotateY(90deg);
+    background: linear-gradient(90deg,
+            #fff 0%,
+            #f9f9f9 5%,
+            #fff 10%,
+            #f9f9f9 15%,
+            #fff 20%,
+            #f9f9f9 25%,
+            #fff 30%,
+            #f9f9f9 35%,
+            #fff 40%,
+            #f9f9f9 45%,
+            #fff 50%,
+            #f9f9f9 55%,
+            #fff 60%,
+            #f9f9f9 65%,
+            #fff 70%,
+            #f9f9f9 75%,
+            #fff 80%,
+            #f9f9f9 85%,
+            #fff 90%,
+            #f9f9f9 95%,
+            #fff 100%);
+}
+
+.book::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: ' ';
+    width: 200px;
+    height: 300px;
+    transform: translateZ(-17.5px);
+    background-color: #01060f;
+    border-radius: 0 5px 5px 0;
+    box-shadow: -10px 0 50px 10px #66666641;
+}
+
+#timeline-chart .tick {
+    stroke-width: 1px;
+}
+
+.frame {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    border: solid 10px #555;
+    margin: auto;
+    box-shadow: -3px -3px 12px #999;
+}
+
+.border {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    border: solid 30px rgb(255, 255, 255);
+    box-shadow: -3px -3px 12px #999;
+}
+
+.frame > .border > img {
+    display: block;
+    padding: 0;
+    margin: 0;
+    height: auto;
+    border-top: solid 2px #aaa;
+    border-left: solid 2px #aaa;
+    border-bottom: solid 2px #ccc;
+    border-right: solid 2px #ccc;
+}
+
+.frame img#bw-photo {
+    filter: grayscale(100%);
+}
+
+.slide {
+    width: 1600px;
+    height: 900px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+}
+
+.present .slide {
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+svg text {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.slide img,
+.slide div {
+    /* width: 100%;
+    height: 100%; */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.noClick {
+    pointer-events: none;
+}
+
+
+
+/* Slide: title */
+.impress-on-title h4,
+.impress-on-title svg,
+.impress-on-title .bb,
+.impress-on-title #library-list,
+.impress-on-title #ldtl-ed5-cartoon,
+.impress-on-title #ldtl-ed5-excerpts,
+.impress-on-title #uwa-law-library,
+.impress-on-title #thankyou {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: photo */
+.impress-on-photo h4,
+.impress-on-photo .bb,
+.impress-on-photo #library-list,
+.impress-on-photo #ldtl-ed5-cartoon,
+.impress-on-photo #ldtl-ed5-excerpts,
+.impress-on-photo #title,
+.impress-on-photo .book,
+.impress-on-photo .book::before,
+.impress-on-photo .book::after,
+.impress-on-photo #uwa-law-library,
+.impress-on-photo #thankyou,
+.impress-on-photo svg .editions,
+.impress-on-photo svg {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: ldtl-title-slide-3 */
+.impress-on-ldtl-title-slide-3 #title,
+.impress-on-ldtl-title-slide-3 .bb,
+.impress-on-ldtl-title-slide-3 #ldtl-ed5-excerpts,
+.impress-on-ldtl-title-slide-3 #thankyou,
+.impress-on-ldtl-title-slide-3 svg .editions,
+.impress-on-ldtl-title-slide-3 #ldtl-ed5-cartoon {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: uwa */
+.impress-on-uwa #title,
+.impress-on-uwa .bb,
+.impress-on-uwa #ldtl-ed5-excerpts,
+.impress-on-uwa #ldtl-ed5-cartoon,
+.impress-on-uwa #ldtl-ed2,
+.impress-on-uwa #ldtl-ed3,
+.impress-on-uwa #ldtl-ed4,
+.impress-on-uwa #thankyou,
+.impress-on-uwa #overview-chapters-4,
+.impress-on-uwa #library-list {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: ldtl-ed5-cartoon */
+.impress-on-ldtl-ed5-cartoon #title,
+.impress-on-ldtl-ed5-cartoon #ldtl-ed1,
+.impress-on-ldtl-ed5-cartoon #ldtl-ed2,
+.impress-on-ldtl-ed5-cartoon #ldtl-ed3,
+.impress-on-ldtl-ed5-cartoon #ldtl-ed4,
+.impress-on-ldtl-ed5-cartoon #ldtl-ed12,
+.impress-on-ldtl-ed5-cartoon svg,
+.impress-on-ldtl-ed5-cartoon #ldtl-ed5-excerpts,
+.impress-on-ldtl-ed5-cartoon .bb,
+.impress-on-ldtl-ed5-cartoon .frame,
+.impress-on-ldtl-ed5-cartoon #blackstone-frontmatter,
+.impress-on-ldtl-ed5-cartoon #thankyou,
+.impress-on-ldtl-ed5-cartoon #overview-chapters-4,
+.impress-on-ldtl-ed5-cartoon .chapter,
+.impress-on-ldtl-ed5-cartoon #library-list {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+#ldtl-ed5-cartoon { align-items: flex-end }
+
+/* Slide: ldtl-ed5-excerpts */
+.impress-on-ldtl-ed5-excerpts svg,
+.impress-on-ldtl-ed5-excerpts .chapter,
+.impress-on-ldtl-ed5-excerpts .bb,
+.impress-on-ldtl-ed5-excerpts #title,
+.impress-on-ldtl-ed5-excerpts #ldtl-ed5-cartoon,
+.impress-on-ldtl-ed5-excerpts #library-list,
+.impress-on-ldtl-ed5-excerpts #blackstone-frontmatter,
+.impress-on-ldtl-ed5-excerpts #ldtl-ed1,
+.impress-on-ldtl-ed5-excerpts #ldtl-ed2,
+.impress-on-ldtl-ed5-excerpts #ldtl-ed3,
+.impress-on-ldtl-ed5-excerpts #ldtl-ed4,
+.impress-on-ldtl-ed5-excerpts #ldtl-ed12{
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+#ldtl-ed5-excerpts h3 {
+    margin-bottom: 15px;
+}
+
+.chapter {
+    margin-bottom: 0;
+}
+
+/* Slide ldtl-ed5-hath */
+.impress-on-ldtl-ed5-hath svg,
+.impress-on-ldtl-ed5-hath g.editions,
+.impress-on-ldtl-ed5-hath .bb,
+.impress-on-ldtl-ed5-hath #title,
+.impress-on-ldtl-ed5-hath #ldtl-ed1,
+.impress-on-ldtl-ed5-hath #ldtl-ed2,
+.impress-on-ldtl-ed5-hath #ldtl-ed3,
+.impress-on-ldtl-ed5-hath #ldtl-ed4,
+.impress-on-ldtl-ed5-hath #ldtl-ed12,
+.impress-on-ldtl-ed5-hath #library-list,
+.impress-on-ldtl-ed5-hath #ldtl-ed5-cartoon,
+.impress-on-ldtl-ed5-hath #blackstone-frontmatter,
+.impress-on-ldtl-ed5-hath h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blackstone-frontmatter */
+.impress-on-blackstone-frontmatter .bb,
+.impress-on-blackstone-frontmatter #library-list,
+.impress-on-blackstone-frontmatter #ldtl-ed5-cartoon,
+.impress-on-blackstone-frontmatter h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blackstone-intro */
+.impress-on-blackstone-intro .bb,
+.impress-on-blackstone-intro #library-list,
+.impress-on-blackstone-intro #ldtl-ed5-cartoon,
+.impress-on-blackstone-intro #thankyou,
+.impress-on-blackstone-intro #title,
+.impress-on-blackstone-intro h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.impress-on-blackstone-intro #exerpt2,
+.impress-on-blackstone-intro #exerpt3 {
+    opacity: 50%;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blackstone-footnotes */
+.impress-on-blackstone-footnotes #library-list,
+.impress-on-blackstone-footnotes .bb,
+.impress-on-blackstone-footnotes #ldtl-ed5-cartoon,
+.impress-on-blackstone-footnotes h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: salk-content */
+.impress-on-salk-content .bb,
+.impress-on-salk-content #salk-table,
+.impress-on-salk-content #peerwilliams-content {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blankard-focus */
+.impress-on-blankard-focus .bb,
+.impress-on-blankard-focus #salk-table {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: salk-overview-2 */
+.impress-on-salk-overview-2 .bb,
+.impress-on-salk-overview-2 #salk-table {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: smith-focus */
+.impress-on-smith-focus .bb,
+.impress-on-smith-focus #salk-table {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+
+/* Slide: peerwilliams-content */
+.impress-on-peerwilliams-content .bb {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: salk-overview-3 */
+.impress-on-salk-overview-3 .bb,
+.impress-on-salk-overview-3 h4,
+.impress-on-salk-overview-3 #salk-smith,
+.impress-on-salk-overview-3 #peerwilliams-content,
+.impress-on-salk-overview-3 #ldtl-ed5-excerpts,
+.impress-on-salk-overview-3 #salk-table {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: salk-overview-4 */
+.impress-on-salk-overview-4 .bb,
+.impress-on-salk-overview-4 #salk-table,
+.impress-on-salk-overview-4 #salk-smith,
+/* .impress-on-salk-overview-4 #salk-blankard, */
+.impress-on-salk-overview-4 #peerwilliams-content,
+.impress-on-salk-overview-4 #ldtl-ed5-excerpts,
+.impress-on-salk-overview-4 h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: salk-overview-5 */
+.impress-on-salk-overview-5 .bb,
+.impress-on-salk-overview-5 h4,
+.impress-on-salk-overview-5 #ldtl-ed5-excerpts,
+.impress-on-salk-overview-5 #salk-smith,
+.impress-on-salk-overview-5 #peerwilliams-content,
+.impress-on-salk-overview-5 #salk-table {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: salk-overview-6 */
+.impress-on-salk-overview-6 .bb,
+.impress-on-salk-overview-6 #salk-smith,
+.impress-on-salk-overview-6 #peerwilliams-content,
+.impress-on-salk-overview-6 #salk-table {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: salk-table */
+.impress-on-salk-table .bb,
+.impress-on-salk-table h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blackstone-focus-2 */
+.impress-on-blackstone-focus-2 .bb,
+.impress-on-blackstone-focus-2 #ldtl-ed5-cartoon,
+.impress-on-blackstone-focus-2 h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blackstone-focus-3 */
+.impress-on-blackstone-focus-3 #title,
+.impress-on-blackstone-focus-3 #ldtl-ed5-cartoon,
+.impress-on-blackstone-focus-3 h4,
+.impress-on-blackstone-focus-3 #library-list {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+
+/* Slide: blackstone-focus-3-2 */
+.impress-on-blackstone-focus-3-2 h4,
+.impress-on-blackstone-focus-3-2 .notdictionary,
+.impress-on-blackstone-focus-3-2 #title,
+.impress-on-blackstone-focus-3-2 #ldtl-ed5-excerpts,
+.impress-on-blackstone-focus-3-2 #library-list {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blackstone-focus-3-3 */
+.impress-on-blackstone-focus-3-3 h4,
+.impress-on-blackstone-focus-3-3 .notdictionary,
+.impress-on-blackstone-focus-3-3 #title,
+.impress-on-blackstone-focus-3-3 #ldtl-ed5-excerpts,
+.impress-on-blackstone-focus-3-2 #library-list {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+
+/* Slide: blackstone-focus-4 */
+.impress-on-blackstone-focus-4 h4,
+.impress-on-blackstone-focus-4 .notdictionary,
+.impress-on-blackstone-focus-4 #title,
+.impress-on-blackstone-focus-4 #ldtl-ed5-excerpts,
+.impress-on-blackstone-focus-4 #library-list {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: blackstone-focus-5 */
+.impress-on-blackstone-focus-5 .notdictionary,
+.impress-on-blackstone-focus-5 #title,
+.impress-on-blackstone-focus-5 #thankyou {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.impress-on-blackstone-focus-5 #library-list {
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+
+
+
+.impress-on-blackstone-focus-5 #ldtl-ed5-excerpts {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: overview */
+.impress-on-overview #thankyou,
+.impress-on-overview .frame,
+.impress-on-overview #ldtl-title,
+.impress-on-overview .editions,
+.impress-on-overview #ldtl-ed5-excerpts,
+.impress-on-overview #overview-chapters-4,
+.impress-on-overview #title {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: overview-pile */
+.impress-on-overview-pile svg g,
+.impress-on-overview-pile .bb,
+.impress-on-overview-pile .book,
+.impress-on-overview-pile #blackstone-frontmatter,
+.impress-on-overview-pile #ldtl-ed5-cartoon,
+.impress-on-overview-pile #ldtl-ed5-excerpts,
+.impress-on-overview-pile #library-list,
+.impress-on-overview-pile #peerwilliams-content,
+.impress-on-overview-pile #photo,
+.impress-on-overview-pile #salk-content,
+.impress-on-overview-pile #salk-table,
+.impress-on-overview-pile #title,
+.impress-on-overview-pile #uwa-law-library,
+.impress-on-overview-pile #overview-neat,
+.impress-on-overview-pile #overview-chapters-4,
+.impress-on-overview-pile #thankyou {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: overview-neat */
+.impress-on-overview-neat svg g,
+.impress-on-overview-neat .bb,
+.impress-on-overview-neat #blackstone-frontmatter,
+.impress-on-overview-neat #ldtl-ed5-cartoon,
+.impress-on-overview-neat #ldtl-ed5-excerpts,
+.impress-on-overview-neat #library-list,
+.impress-on-overview-neat #peerwilliams-content,
+.impress-on-overview-neat #photo,
+.impress-on-overview-neat #salk-content,
+.impress-on-overview-neat #salk-table,
+.impress-on-overview-neat #title,
+.impress-on-overview-neat #uwa-law-library,
+.impress-on-overview-neat #thankyou {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: overview-2 */
+.impress-on-overview-2 svg g.editions,
+.impress-on-overview-2 #title,
+.impress-on-overview-2 #uwa-law-library,
+.impress-on-overview-2 #photo,
+.impress-on-overview-2 #ldtl-ed5-cartoon,
+.impress-on-overview-2 #library-list,
+.impress-on-overview-2 #thankyou,
+.impress-on-overview-2 h4 {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: overview-chapters */
+.impress-on-overview-chapters svg,
+.impress-on-overview-chapters svg .editions,
+.impress-on-overview-chapters .bb,
+.impress-on-overview-chapters #title,
+.impress-on-overview-chapters #ldtl-ed1,
+.impress-on-overview-chapters #ldtl-ed2,
+.impress-on-overview-chapters #ldtl-ed3,
+.impress-on-overview-chapters #ldtl-ed4,
+.impress-on-overview-chapters #ldtl-ed5-cartoon,
+.impress-on-overview-chapters #library-list,
+.impress-on-overview-chapters #blackstone-frontmatter,
+.impress-on-overview-chapters #thankyou,
+.impress-on-overview-chapters .frame {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+/* Slide: overview-chapters-4 */
+.impress-on-overview-chapters-4 svg,
+.impress-on-overview-chapters-4 .bb,
+.impress-on-overview-chapters-4 .frame,
+.impress-on-overview-chapters-4 #title,
+.impress-on-overview-chapters-4 #ldtl-ed5-cartoon,
+.impress-on-overview-chapters-4 #library-list,
+.impress-on-overview-chapters-4 #blackstone-frontmatter,
+.impress-on-overview-chapters-4 #uwa-law-library,
+.impress-on-overview-chapters-4 #ldtl-ed5-excerpts,
+.impress-on-overview-chapters-4 #thankyou {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.impress-on-overview-chapters-4 h4 {
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+
+#overview-chapters-4 {
+    justify-content: space-around;
+    align-items: center;
+}
+
+/* Slide: finale */
+.impress-on-finale .book,
+.impress-on-finale .book::before,
+.impress-on-finale .book::after,
+.impress-on-finale #title {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.impress-on-finale svg,
+.impress-on-finale h1,
+.impress-on-finale h2,
+.impress-on-finale h3,
+.impress-on-finale .bb,
+.impress-on-finale #ldtl-ed5-cartoon,
+.impress-on-finale #library-list,
+.impress-on-finale #blackstone-frontmatter,
+.impress-on-finale #uwa-law-library,
+.impress-on-finale #ldtl-ed5-excerpts,
+.impress-on-finale #overview-pile,
+.impress-on-finale #overview-chapters-4,
+.impress-on-finale #overview-neat {
+    display: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+#finale {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0;
+}
+
+.finale.frame {
+    max-width: 30%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: 1s ease;
+    filter: grayscale(100%);
+    animation: 1s ease 0s 1 initAnimation;
+}
+
+.impress-on-finale #finale {
+    opacity: 1;
+}
+
+#finale {
+    opacity: 0;
+}
+
+/* Slide: thankyou */
+
+.impress-on-thankyou #finale,
+.impress-on-thankyou #thankyou {
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+
+.impress-on-thankyou .step, #thankyou { opacity: 0; }
+
+#thankyou-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+    padding-top: 0;
+}
+
+#thankyou-text h3 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+
+
+
+
+
+
+
+
+.impress-on-ldtl-ed5-2 .book,
+.impress-on-title .book,
+.impress-on-photo .book,
+.impress-on-ldtl-ed5-cartoon .book,
+.impress-on-ldtl-ed5-excerpts .book,
+.impress-on-ldtl-ed5-hath .book,
+.impress-on-overview-chapters-4 .book,
+.impress-on-finale .book,
+.impress-on-thankyou .book {
+    transform: rotateY(45deg);
+}
+
+#ldtl-title.past,
+.impress-on-timeline #ldtl-title {
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.impress-on-ldtl-title-slide-3 .book,
+.impress-on-ldtl-title-slide-3 .book::before,
+.impress-on-ldtl-title-slide-3 .book::after {
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+.impress-on-ldtl-ed5-hath #ldtl-slide-excerpts,
+.impress-on-blackstone-frontmatter #ldtl-slide-excerpts,
+.impress-on-blackstone-intro #ldtl-slide-excerpts,
+.impress-on-blackstone-footnotes #ldtl-slide-excerpts,
+.impress-on-blackstone-intro #blackstone-excerpts ,
+.impress-on-blackstone-footnotes #blackstone-excerpts {
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+.impress-on-ldtl-ed5-hath #ldtl-slide-excerpts {
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+.impress-on-salk-overview-4 .report {
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+
+#overview-pile, #overview-neat {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+#overview-pile.present,
+#overview-neat.present {
+    opacity: 1;
+}
+
+#overview-neat.next.active {
+    opacity: 1;
+}
+
+.report {
+    opacity: 0;
+    transition: opacity 1s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.bb {
+    justify-content: flex-start
+}
+
+.report img, .report h3 {
+    max-width: 33%;
+}
