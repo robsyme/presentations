@@ -1,0 +1,354 @@
+{
+ "TRAIN-A26-TRKPI-Semaine-04": {
+  "start": "20261119",
+  "end": "20261130",
+  "outbound": [
+   {
+    "train": "171",
+    "headsign": "Saint-Jérôme",
+    "dep": 441,
+    "arr": 445
+   },
+   {
+    "train": "173",
+    "headsign": "Saint-Jérôme",
+    "dep": 588,
+    "arr": 593
+   },
+   {
+    "train": "175",
+    "headsign": "Saint-Jérôme",
+    "dep": 729,
+    "arr": 734
+   },
+   {
+    "train": "177",
+    "headsign": "Saint-Jérôme",
+    "dep": 870,
+    "arr": 875
+   },
+   {
+    "train": "179",
+    "headsign": "Saint-Jérôme",
+    "dep": 941,
+    "arr": 946
+   },
+   {
+    "train": "183",
+    "headsign": "Saint-Jérôme",
+    "dep": 990,
+    "arr": 997
+   },
+   {
+    "train": "185",
+    "headsign": "Saint-Jérôme",
+    "dep": 1020,
+    "arr": 1027
+   },
+   {
+    "train": "187",
+    "headsign": "Saint-Jérôme",
+    "dep": 1055,
+    "arr": 1062
+   },
+   {
+    "train": "189",
+    "headsign": "Saint-Jérôme",
+    "dep": 1090,
+    "arr": 1097
+   },
+   {
+    "train": "191",
+    "headsign": "Saint-Jérôme",
+    "dep": 1150,
+    "arr": 1156
+   },
+   {
+    "train": "193",
+    "headsign": "Saint-Jérôme",
+    "dep": 1199,
+    "arr": 1205
+   },
+   {
+    "train": "195",
+    "headsign": "Saint-Jérôme",
+    "dep": 1294,
+    "arr": 1300
+   },
+   {
+    "train": "197",
+    "headsign": "Saint-Jérôme",
+    "dep": 1354,
+    "arr": 1360
+   },
+   {
+    "train": "199",
+    "headsign": "Saint-Jérôme",
+    "dep": 1419,
+    "arr": 1425
+   }
+  ],
+  "inbound": [
+   {
+    "train": "170",
+    "headsign": "Lucien-L'Allier",
+    "dep": 362,
+    "arr": 368
+   },
+   {
+    "train": "172",
+    "headsign": "Lucien-L'Allier",
+    "dep": 419,
+    "arr": 426
+   },
+   {
+    "train": "174",
+    "headsign": "Lucien-L'Allier",
+    "dep": 445,
+    "arr": 453
+   },
+   {
+    "train": "178",
+    "headsign": "Lucien-L'Allier",
+    "dep": 479,
+    "arr": 487
+   },
+   {
+    "train": "180",
+    "headsign": "Lucien-L'Allier",
+    "dep": 500,
+    "arr": 507
+   },
+   {
+    "train": "182",
+    "headsign": "Parc",
+    "dep": 564,
+    "arr": 573
+   },
+   {
+    "train": "184",
+    "headsign": "Parc",
+    "dep": 705,
+    "arr": 714
+   },
+   {
+    "train": "186",
+    "headsign": "Parc",
+    "dep": 846,
+    "arr": 855
+   },
+   {
+    "train": "188",
+    "headsign": "Lucien-L'Allier",
+    "dep": 998,
+    "arr": 1004
+   },
+   {
+    "train": "190",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1078,
+    "arr": 1083
+   },
+   {
+    "train": "192",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1108,
+    "arr": 1114
+   },
+   {
+    "train": "194",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1182,
+    "arr": 1187
+   },
+   {
+    "train": "196",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1281,
+    "arr": 1287
+   },
+   {
+    "train": "198",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1345,
+    "arr": 1351
+   }
+  ]
+ },
+ "TRAIN-A26-TRKPI-Semaine-05": {
+  "start": "20261201",
+  "end": "20270103",
+  "outbound": [
+   {
+    "train": "171",
+    "headsign": "Saint-Jérôme",
+    "dep": 441,
+    "arr": 445
+   },
+   {
+    "train": "173",
+    "headsign": "Saint-Jérôme",
+    "dep": 588,
+    "arr": 593
+   },
+   {
+    "train": "175",
+    "headsign": "Saint-Jérôme",
+    "dep": 729,
+    "arr": 734
+   },
+   {
+    "train": "177",
+    "headsign": "Saint-Jérôme",
+    "dep": 870,
+    "arr": 875
+   },
+   {
+    "train": "179",
+    "headsign": "Saint-Jérôme",
+    "dep": 941,
+    "arr": 946
+   },
+   {
+    "train": "183",
+    "headsign": "Saint-Jérôme",
+    "dep": 990,
+    "arr": 997
+   },
+   {
+    "train": "185",
+    "headsign": "Saint-Jérôme",
+    "dep": 1020,
+    "arr": 1027
+   },
+   {
+    "train": "187",
+    "headsign": "Saint-Jérôme",
+    "dep": 1055,
+    "arr": 1062
+   },
+   {
+    "train": "189",
+    "headsign": "Saint-Jérôme",
+    "dep": 1090,
+    "arr": 1097
+   },
+   {
+    "train": "191",
+    "headsign": "Saint-Jérôme",
+    "dep": 1150,
+    "arr": 1156
+   },
+   {
+    "train": "193",
+    "headsign": "Saint-Jérôme",
+    "dep": 1199,
+    "arr": 1205
+   },
+   {
+    "train": "195",
+    "headsign": "Saint-Jérôme",
+    "dep": 1294,
+    "arr": 1300
+   },
+   {
+    "train": "197",
+    "headsign": "Saint-Jérôme",
+    "dep": 1354,
+    "arr": 1360
+   },
+   {
+    "train": "199",
+    "headsign": "Saint-Jérôme",
+    "dep": 1419,
+    "arr": 1425
+   }
+  ],
+  "inbound": [
+   {
+    "train": "170",
+    "headsign": "Lucien-L'Allier",
+    "dep": 362,
+    "arr": 368
+   },
+   {
+    "train": "172",
+    "headsign": "Lucien-L'Allier",
+    "dep": 419,
+    "arr": 426
+   },
+   {
+    "train": "174",
+    "headsign": "Lucien-L'Allier",
+    "dep": 445,
+    "arr": 453
+   },
+   {
+    "train": "178",
+    "headsign": "Lucien-L'Allier",
+    "dep": 479,
+    "arr": 487
+   },
+   {
+    "train": "180",
+    "headsign": "Lucien-L'Allier",
+    "dep": 500,
+    "arr": 507
+   },
+   {
+    "train": "182",
+    "headsign": "Parc",
+    "dep": 564,
+    "arr": 573
+   },
+   {
+    "train": "184",
+    "headsign": "Parc",
+    "dep": 705,
+    "arr": 714
+   },
+   {
+    "train": "186",
+    "headsign": "Parc",
+    "dep": 846,
+    "arr": 855
+   },
+   {
+    "train": "188",
+    "headsign": "Lucien-L'Allier",
+    "dep": 998,
+    "arr": 1004
+   },
+   {
+    "train": "190",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1078,
+    "arr": 1083
+   },
+   {
+    "train": "192",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1108,
+    "arr": 1114
+   },
+   {
+    "train": "194",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1182,
+    "arr": 1187
+   },
+   {
+    "train": "196",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1281,
+    "arr": 1287
+   },
+   {
+    "train": "198",
+    "headsign": "Lucien-L'Allier",
+    "dep": 1345,
+    "arr": 1351
+   }
+  ]
+ }
+}

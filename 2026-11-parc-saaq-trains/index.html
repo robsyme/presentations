@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parc to SAAQ Train Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column, like a platform timetable board; controls, answer, then the two charts and the raw timetable. */
+:root {
+  --bg: #f6f6f2;
+  --surface: #fcfcfb;
+  --ink: #16160f;
+  --ink-2: #52514e;
+  --muted: #85837b;
+  --grid: #e3e2da;
+  --axis: #c3c2b7;
+  --line-12: #fdd26e;      /* exo line 12 Saint-Jérôme */
+  --line-12-ink: #3b2e05;
+  --ride: #2a78d6;
+  --walk: #a9a79e;
+  --saaq: #1baf7a;
+  --wait: #eb6834;
+  --wait-soft: rgba(235,104,52,.18);
+  --open-band: rgba(27,175,122,.07);
+  --best: #16160f;
+  --warn-ink: #8a4b00;
+  --warn-bg: #fff1d6;
+  --border: rgba(22,22,15,.10);
+  --f-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111110; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #8f8d85;
+    --grid: #2c2c2a; --axis: #45453f; --line-12: #fdd26e; --line-12-ink: #3b2e05;
+    --ride: #3987e5; --walk: #6f6d66; --saaq: #199e70; --wait: #d95926; --wait-soft: rgba(217,89,38,.22);
+    --open-band: rgba(25,158,112,.10); --best: #f0efec; --warn-ink: #ffc46b; --warn-bg: #3a2a10;
+    --border: rgba(255,255,255,.10); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111110; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #8f8d85;
+  --grid: #2c2c2a; --axis: #45453f; --line-12: #fdd26e; --line-12-ink: #3b2e05;
+  --ride: #3987e5; --walk: #6f6d66; --saaq: #199e70; --wait: #d95926; --wait-soft: rgba(217,89,38,.22);
+  --open-band: rgba(25,158,112,.10); --best: #f0efec; --warn-ink: #ffc46b; --warn-bg: #3a2a10;
+  --border: rgba(255,255,255,.10); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2 { font-family: var(--f-display); font-weight: 700; text-wrap: balance; margin: 0; letter-spacing: .005em; }
+h1 { font-size: clamp(30px, 6vw, 44px); line-height: 1.02; }
+h2 { font-size: 22px; line-height: 1.15; }
+p { margin: 0; }
+.mono, .t { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+
+/* Header */
+header { display: flex; flex-direction: column; gap: 12px; }
+.route { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; color: var(--ink-2); }
+.chip-12 { display: inline-flex; align-items: center; gap: 6px; background: var(--line-12); color: var(--line-12-ink); font-family: var(--f-display); font-weight: 700; font-size: 15px; padding: 2px 10px 2px 4px; border-radius: 999px; }
+.chip-12 b { background: var(--line-12-ink); color: var(--line-12); border-radius: 999px; width: 22px; height: 22px; display: inline-grid; place-items: center; font-size: 13px; }
+.stops { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.stops .dot { width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--ink-2); display: inline-block; }
+.stops .seg { width: 18px; height: 3px; background: var(--line-12); display: inline-block; border-radius: 2px; }
+.lede { color: var(--ink-2); max-width: 64ch; }
+
+/* Controls */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.controls { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 20px 28px; }
+.ctl { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ctl label { font-weight: 600; font-size: 14px; }
+.ctl .val { font-family: var(--f-display); font-size: 30px; font-weight: 700; line-height: 1; }
+.ctl .val small { font-size: 15px; font-weight: 600; color: var(--ink-2); margin-left: 3px; }
+.ctl.primary .val { font-size: 40px; }
+.ctl .hint { font-size: 12.5px; color: var(--muted); }
+input[type=range] { width: 100%; accent-color: var(--ride); height: 28px; margin: 0; }
+input[type=range]:focus-visible { outline: 2px solid var(--ride); outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 680px) { .controls { grid-template-columns: 1fr 1fr; } .ctl.primary { grid-column: 1 / -1; } }
+
+/* Answer */
+.answer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 28px; align-items: start; }
+.answer h2 { font-size: clamp(24px, 4.4vw, 32px); }
+.answer h2 .mono { font-family: var(--f-display); font-variant-numeric: tabular-nums; }
+.answer .sub { color: var(--ink-2); margin-top: 6px; }
+.waitbig { text-align: right; }
+.waitbig .n { font-family: var(--f-display); font-weight: 700; font-size: 56px; line-height: .95; color: var(--wait); }
+.waitbig .l { font-size: 13px; color: var(--ink-2); }
+.itin { grid-column: 1 / -1; list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 64px 14px minmax(0,1fr); }
+.itin li { display: contents; }
+.itin .t { font-size: 14px; padding: 5px 0; color: var(--ink); }
+.itin .rail { position: relative; }
+.itin .rail::before { content: ""; position: absolute; left: 5px; top: 0; bottom: 0; width: 4px; background: var(--c, var(--walk)); }
+.itin li:first-child .rail::before { top: 50%; }
+.itin li:last-child .rail::before { bottom: 50%; }
+.itin .rail::after { content: ""; position: absolute; left: 2px; top: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%; background: var(--surface); border: 2px solid var(--ink-2); box-sizing: border-box; }
+.itin .what { padding: 5px 0 5px 12px; font-size: 14px; }
+.itin .what span { color: var(--ink-2); }
+.itin .what.waiting { color: var(--wait); font-weight: 600; }
+.warn { grid-column: 1 / -1; display: flex; gap: 8px; align-items: flex-start; background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; }
+.warn::before { content: "!"; font-weight: 700; font-family: var(--f-display); border: 1.5px solid currentColor; border-radius: 50%; width: 18px; height: 18px; flex: none; display: grid; place-items: center; font-size: 12px; margin-top: 1px; }
+@media (max-width: 560px) { .answer { grid-template-columns: 1fr; } .waitbig { text-align: left; } }
+
+/* Charts */
+section { display: flex; flex-direction: column; gap: 12px; }
+section > p.desc { color: var(--ink-2); max-width: 66ch; font-size: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.chartbox { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 8px 8px; overflow-x: auto; }
+.chartbox svg { display: block; width: 100%; min-width: 620px; height: auto; }
+#curve svg { min-width: 0; }
+svg text { font-family: var(--f-body); fill: var(--ink-2); font-size: 12px; }
+svg text.t { font-family: var(--f-mono); }
+svg .row-hit { fill: transparent; cursor: pointer; }
+svg .row-hit:hover, svg .row-hit:focus-visible { fill: var(--grid); opacity: .45; outline: none; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 12.5px; line-height: 1.4; padding: 7px 10px; border-radius: 7px; max-width: 260px; z-index: 5; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.tip b { font-family: var(--f-mono); font-weight: 600; }
+
+/* Tables */
+.tables { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 640px) { .tables { grid-template-columns: 1fr; } }
+.tablewrap { overflow-x: auto; min-width: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--axis); white-space: nowrap; }
+td { padding: 5px 8px; border-bottom: 1px solid var(--grid); font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.dim td { color: var(--muted); }
+tr.best td { font-weight: 600; }
+tr.best td:first-child::before { content: "★ "; color: var(--wait); }
+td.wait { color: var(--wait); font-weight: 600; }
+.notes { font-size: 13px; color: var(--ink-2); display: flex; flex-direction: column; gap: 6px; max-width: 70ch; }
+.notes a { color: var(--ride); }
+@media (prefers-reduced-motion: no-preference) { .tip { transition: opacity .1s; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="route">
+      <span class="chip-12"><b>12</b>Saint-Jérôme</span>
+      <span class="stops"><span class="dot"></span>Parc<span class="seg"></span><span class="dot"></span>Chabanel<span class="seg"></span><span class="dot"></span>Bois-de-Boulogne</span>
+    </div>
+    <h1>Parc to the SAAQ and back by train</h1>
+    <p class="lede">Weekday line 12 trains are scarce in the middle of the day, about one every 2 h 20 min. Set how long you expect to be inside the SAAQ at 855 boul. Henri-Bourassa Ouest and this picks the train out of Parc that leaves you the least time waiting around.</p>
+  </header>
+
+  <div class="panel controls" role="group" aria-label="Trip settings">
+    <div class="ctl primary">
+      <label for="stay">Time inside the SAAQ</label>
+      <div class="val" id="stayVal">45<small>min</small></div>
+      <input type="range" id="stay" min="5" max="240" step="5" value="45">
+      <span class="hint">Your guess at the line plus service time.</span>
+    </div>
+    <div class="ctl">
+      <label for="walk">Walk, each way</label>
+      <div class="val" id="walkVal">10<small>min</small></div>
+      <input type="range" id="walk" min="4" max="20" step="1" value="10">
+      <span class="hint">744 m platform to door, under the bridge.</span>
+    </div>
+    <div class="ctl">
+      <label for="buf">On the platform early by</label>
+      <div class="val" id="bufVal">2<small>min</small></div>
+      <input type="range" id="buf" min="0" max="10" step="1" value="2">
+      <span class="hint">Margin before the train home.</span>
+    </div>
+  </div>
+
+  <div class="panel answer" id="answer" aria-live="polite"></div>
+
+  <section>
+    <h2>Every train you could take</h2>
+    <p class="desc">One row per weekday train from Parc. Each bar runs from leaving Parc to getting back to Parc. Orange is time spent waiting: for the doors to open at 8:30, or on the platform for the train home. Dots on the top line are the trains back to Parc.</p>
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--ride)"></i>On the train</span>
+      <span><i style="background:var(--walk)"></i>Walking</span>
+      <span><i style="background:var(--saaq)"></i>Inside the SAAQ</span>
+      <span><i style="background:var(--wait)"></i>Waiting on the platform</span>
+      <span><i style="background:repeating-linear-gradient(45deg,var(--wait) 0 2px,transparent 2px 5px);outline:1px solid var(--wait);outline-offset:-1px"></i>Waiting for doors to open</span>
+    </div>
+    <div class="chartbox" id="timeline"></div>
+    <div class="tablewrap"><table id="optTable" aria-label="All options as a table"></table></div>
+  </section>
+
+  <section>
+    <h2>If the SAAQ takes longer than you planned</h2>
+    <p class="desc">The thick line is the least waiting you can get for each length of visit, using the best train for that length. The grey lines are each individual train. The line drops to almost nothing just before a train home and jumps back up once you miss it. Tap or click the chart to set the time inside.</p>
+    <div class="chartbox" id="curve"></div>
+  </section>
+
+  <section>
+    <h2>The timetable used</h2>
+    <div class="tables">
+      <div class="tablewrap"><table id="ttOut"></table></div>
+      <div class="tablewrap"><table id="ttIn"></table></div>
+    </div>
+    <div class="notes">
+      <p>Weekday schedule from exo's official train timetable data (GTFS), published 20 Nov 2026 and valid 19 Nov 2026 to 3 Jan 2027. No weekday service on 25 Dec and 1 Jan. Line 12 trains run Parc ↔ Bois-de-Boulogne in 4 to 9 minutes.</p>
+      <p>SAAQ service centre, 855 boul. Henri-Bourassa Ouest: weekdays 8:30 to 16:30, closed weekends. Times inside the SAAQ count from when you arrive or when the doors open, whichever is later. A trip that would keep you inside past 16:30 isn't offered.</p>
+      <p>"Waiting" adds up time outside the doors before opening and time on the platform. Ties go to the trip that gets you home sooner.</p>
+      <p>Source: <a href="https://exo.quebec/fr/a-propos/donnees-ouvertes" target="_blank" rel="noopener">exo open data</a>. Check <a href="https://exo.quebec/en/trip-planner/train/saint-jerome" target="_blank" rel="noopener">exo line 12</a> for same-day changes.</p>
+    </div>
+  </section>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+// Weekday line 12 (service TRAIN-A26-TRKPI-Semaine-04/05), minutes after midnight. [departs, arrives, train no.]
+const TT = {"outbound":[[441,445,"171"],[588,593,"173"],[729,734,"175"],[870,875,"177"],[941,946,"179"],[990,997,"183"],[1020,1027,"185"],[1055,1062,"187"],[1090,1097,"189"],[1150,1156,"191"],[1199,1205,"193"],[1294,1300,"195"],[1354,1360,"197"],[1419,1425,"199"]],"inbound":[[362,368,"170"],[419,426,"172"],[445,453,"174"],[479,487,"178"],[500,507,"180"],[564,573,"182"],[705,714,"184"],[846,855,"186"],[998,1004,"188"],[1078,1083,"190"],[1108,1114,"192"],[1182,1187,"194"],[1281,1287,"196"],[1345,1351,"198"]]};
+const OPEN = 8 * 60 + 30, CLOSE = 16 * 60 + 30;
+const OUT = TT.outbound.map(([dep, arr, no]) => ({ dep, arr, no }));
+const IN = TT.inbound.map(([dep, arr, no]) => ({ dep, arr, no }));
+
+const $ = id => document.getElementById(id);
+const fmt = m => `${Math.floor(m / 60)}:${String(Math.round(m) % 60).padStart(2, "0")}`;
+const dur = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
+
+function plan(o, stay, walk, buf) {
+  const atDoor = o.arr + walk;
+  if (atDoor >= CLOSE) return { o, closed: true, atDoor };
+  const start = Math.max(atDoor, OPEN);
+  const done = start + stay;
+  if (done > CLOSE) return { o, pastClose: true, atDoor, start, done };
+  const atPlatform = done + walk;
+  const back = IN.find(i => i.dep - buf >= atPlatform);
+  if (!back) return { o, noTrain: true, atDoor, start, done, atPlatform };
+  const doorWait = start - atDoor;
+  const platformWait = back.dep - atPlatform;
+  return { o, atDoor, start, done, atPlatform, back, doorWait, platformWait,
+           waiting: doorWait + platformWait, home: back.arr, total: back.arr - o.dep };
+}
+function allPlans(stay, walk, buf) {
+  const ps = OUT.map(o => plan(o, stay, walk, buf));
+  const ok = ps.filter(p => p.back);
+  let best = null;
+  for (const p of ok) if (!best || p.waiting < best.waiting || (p.waiting === best.waiting && p.home < best.home)) best = p;
+  return { ps, best };
+}
+// Only trains that can reach the SAAQ before closing at the max walk are worth listing, plus the first one that can't.
+const RELEVANT = (() => { const i = OUT.findIndex(o => o.arr + 4 >= CLOSE); return OUT.slice(0, i + 1); })();
+
+const state = { stay: 45, walk: 10, buf: 2 };
+try { const s = JSON.parse(localStorage.getItem("saaq-plan") || "null"); if (s) Object.assign(state, s); } catch (e) {}
+for (const k of ["stay", "walk", "buf"]) $(k).value = state[k];
+
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function txt(parent, x, y, s, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = s; return t; }
+
+const tip = $("tip");
+function showTip(html, evt, box) {
+  tip.innerHTML = html; tip.hidden = false;
+  const tr = tip.getBoundingClientRect();
+  const pt = evt.touches ? evt.touches[0] : evt;
+  let x = pt.clientX + 14;
+  if (x + tr.width + 8 > document.documentElement.clientWidth) x = Math.max(8, pt.clientX - tr.width - 14);
+  tip.style.left = (x + window.scrollX) + "px";
+  tip.style.top = (pt.clientY + window.scrollY + 14) + "px";
+}
+function hideTip() { tip.hidden = true; }
+tip.style.position = "absolute";
+
+function renderAnswer({ best }) {
+  const a = $("answer");
+  if (!best) { a.innerHTML = `<h2>No train gets you there and back today with these settings.</h2>`; return; }
+  const p = best;
+  const rows = [
+    [p.o.dep, `Train ${p.o.no} leaves Parc`, "var(--ride)"],
+    [p.o.arr, `Arrive Bois-de-Boulogne, walk ${state.walk} min`, "var(--walk)"],
+    ...(p.doorWait ? [[p.atDoor, `At the SAAQ door <span>wait ${dur(p.doorWait)} for opening</span>`, "var(--wait)", true]] : []),
+    [p.start, `Inside the SAAQ <span>for ${dur(state.stay)}</span>`, "var(--saaq)"],
+    [p.done, `Done, walk back ${state.walk} min`, "var(--walk)"],
+    [p.atPlatform, `On the platform <span>wait ${dur(p.platformWait)}</span>`, "var(--wait)", true],
+    [p.back.dep, `Train ${p.back.no} leaves Bois-de-Boulogne`, "var(--ride)"],
+    [p.home, `Back at Parc <span>${dur(p.total)} door to door</span>`, "transparent"],
+  ];
+  a.innerHTML = `
+    <div>
+      <div class="eyebrow">Best train</div>
+      <h2>Take the <span class="mono">${fmt(p.o.dep)}</span> from Parc</h2>
+      <p class="sub">Home at Parc by <span class="mono">${fmt(p.home)}</span> on the <span class="mono">${fmt(p.back.dep)}</span> back.</p>
+    </div>
+    <div class="waitbig"><div class="n">${p.waiting}</div><div class="l">min waiting${p.doorWait ? " in total" : " on the platform"}</div></div>
+    <ol class="itin">${rows.map(([t, w, c, wt]) => `<li><span class="t">${fmt(t)}</span><span class="rail" style="--c:${c}"></span><span class="what${wt ? " waiting" : ""}">${w}</span></li>`).join("")}</ol>
+    ${p.done > CLOSE - 20 ? `<div class="warn">You'd finish within 20 minutes of closing (16:30). If the visit runs long, the SAAQ may stop serving before you're done.</div>` : ""}`;
+}
+
+function renderTimeline({ ps, best }) {
+  const box = $("timeline"); box.innerHTML = "";
+  const rows = ps.filter(p => RELEVANT.includes(p.o));
+  const ends = rows.filter(p => p.back).map(p => p.home);
+  const x0 = 7 * 60, x1 = Math.max(18 * 60, Math.ceil((Math.max(...ends, 0) + 10) / 60) * 60);
+  const W = Math.max(620, box.clientWidth - 16), L = 96, R = 92, top = 46, rowH = 40;
+  const H = top + rows.length * rowH + 26;
+  const sx = m => L + (m - x0) / (x1 - x0) * (W - L - R);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Timeline of each trip option" }, box);
+  const defs = el("defs", {}, svg);
+  const pat = el("pattern", { id: "hatch", width: 5, height: 5, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
+  el("rect", { width: 2, height: 5, fill: "var(--wait)" }, pat);
+
+  // open-hours band
+  el("rect", { x: sx(OPEN), y: top - 8, width: sx(CLOSE) - sx(OPEN), height: rows.length * rowH + 8, fill: "var(--open-band)" }, svg);
+  txt(svg, (sx(OPEN) + sx(CLOSE)) / 2, H - 6, "SAAQ open 8:30 – 16:30", { "text-anchor": "middle", "font-size": 11, fill: "var(--saaq)" });
+  // hour grid
+  for (let h = x0; h <= x1; h += 60) {
+    el("line", { x1: sx(h), x2: sx(h), y1: top - 8, y2: top + rows.length * rowH, stroke: "var(--grid)", "stroke-width": 1 }, svg);
+    txt(svg, sx(h), top - 30, fmt(h), { "text-anchor": "middle", class: "t", "font-size": 11, fill: "var(--muted)" });
+  }
+  // trains back lane
+  txt(svg, L - 10, top - 14, "Trains back", { "text-anchor": "end", "font-size": 11, fill: "var(--muted)" });
+  el("line", { x1: sx(x0), x2: sx(x1), y1: top - 18, y2: top - 18, stroke: "var(--axis)" }, svg);
+  for (const i of IN) if (i.dep >= x0 && i.dep <= x1) {
+    const used = best && best.back === i;
+    el("circle", { cx: sx(i.dep), cy: top - 18, r: used ? 5 : 3.5, fill: used ? "var(--ride)" : "var(--surface)", stroke: "var(--ride)", "stroke-width": 2 }, svg);
+  }
+
+  rows.forEach((p, k) => {
+    const y = top + k * rowH, cy = y + rowH / 2, bh = 16, isBest = p === best;
+    const g = el("g", { opacity: p.back ? 1 : .55 }, svg);
+    if (isBest) el("rect", { x: 4, y: y + 3, width: W - 8, height: rowH - 6, rx: 6, fill: "none", stroke: "var(--best)", "stroke-width": 1.5 }, g);
+    txt(g, L - 10, cy + 4, fmt(p.o.dep), { "text-anchor": "end", class: "t", "font-weight": isBest ? 600 : 400, fill: isBest ? "var(--ink)" : "var(--ink-2)", "font-size": 13 });
+    txt(g, 12, cy + 4, `#${p.o.no}`, { class: "t", "font-size": 11, fill: "var(--muted)" });
+    if (!p.back) {
+      el("rect", { x: sx(p.o.dep), y: cy - bh / 2, width: Math.max(3, sx(p.o.arr) - sx(p.o.dep)), height: bh, rx: 3, fill: "var(--ride)" }, g);
+      txt(g, sx(p.o.arr) + 8, cy + 4, p.closed ? `Arrives ${fmt(p.atDoor)}, after closing` : p.pastClose ? `Done ${fmt(p.done)}, after closing` : "No train back", { "font-size": 12, fill: "var(--muted)" });
+      return;
+    }
+    const segs = [
+      [p.o.dep, p.o.arr, "var(--ride)", `Train ${p.o.no}: Parc ${fmt(p.o.dep)} → Bois-de-Boulogne ${fmt(p.o.arr)}`],
+      [p.o.arr, p.atDoor, "var(--walk)", `Walk to the SAAQ, ${state.walk} min`],
+      [p.atDoor, p.start, "url(#hatch)", `Wait for doors to open: ${dur(p.doorWait)}`],
+      [p.start, p.done, "var(--saaq)", `Inside the SAAQ ${fmt(p.start)} – ${fmt(p.done)}`],
+      [p.done, p.atPlatform, "var(--walk)", `Walk back to the station, ${state.walk} min`],
+      [p.atPlatform, p.back.dep, "var(--wait)", `Wait on the platform: ${dur(p.platformWait)}`],
+      [p.back.dep, p.back.arr, "var(--ride)", `Train ${p.back.no}: Bois-de-Boulogne ${fmt(p.back.dep)} → Parc ${fmt(p.back.arr)}`],
+    ];
+    for (const [a, b, fill, label] of segs) {
+      if (b <= a) continue;
+      const r = el("rect", { x: sx(a), y: cy - bh / 2, width: Math.max(1.5, sx(b) - sx(a)), height: bh, fill, stroke: "var(--surface)", "stroke-width": 1 }, g);
+      if (fill === "url(#hatch)") el("rect", { x: sx(a), y: cy - bh / 2, width: sx(b) - sx(a), height: bh, fill: "none", stroke: "var(--wait)", "stroke-width": 1 }, g);
+      r.dataset.tip = label;
+    }
+    txt(g, W - R + 10, cy, `${p.waiting} min`, { class: "t", "font-size": 13, "font-weight": 600, fill: "var(--ink)" });
+    txt(g, W - R + 10, cy + 13, "waiting", { "font-size": 10.5, fill: "var(--muted)" });
+    const hit = el("rect", { x: 4, y: y + 3, width: W - 8, height: rowH - 6, rx: 6, class: "row-hit", tabindex: 0 }, svg);
+    hit.dataset.row = k;
+    const html = `<b>${fmt(p.o.dep)}</b> from Parc (train ${p.o.no})<br>Inside ${fmt(p.start)} – ${fmt(p.done)}<br>${p.doorWait ? `Wait for doors ${dur(p.doorWait)}<br>` : ""}Platform wait ${dur(p.platformWait)} for the <b>${fmt(p.back.dep)}</b><br>Back at Parc <b>${fmt(p.home)}</b>`;
+    hit.addEventListener("mousemove", e => showTip(html, e, box));
+    hit.addEventListener("mouseleave", hideTip);
+    hit.addEventListener("focus", e => { const r = hit.getBoundingClientRect(); showTip(html, { clientX: r.left + 120, clientY: r.top + 10 }, box); });
+    hit.addEventListener("blur", hideTip);
+  });
+  // base axis line
+  el("line", { x1: L, x2: W - R, y1: top + rows.length * rowH, y2: top + rows.length * rowH, stroke: "var(--axis)" }, svg);
+}
+
+function renderTable({ ps, best }) {
+  const rows = ps.filter(p => RELEVANT.includes(p.o));
+  $("optTable").innerHTML = `<thead><tr><th>Leave Parc</th><th>Inside SAAQ</th><th>Train back</th><th>Waiting</th><th>Home</th></tr></thead><tbody>${
+    rows.map(p => p.back
+      ? `<tr class="${p === best ? "best" : ""}"><td>${fmt(p.o.dep)}</td><td>${fmt(p.start)}–${fmt(p.done)}</td><td>${fmt(p.back.dep)}</td><td class="wait">${p.waiting} min${p.doorWait ? ` (${p.doorWait} at door)` : ""}</td><td>${fmt(p.home)}</td></tr>`
+      : `<tr class="dim"><td>${fmt(p.o.dep)}</td><td colspan="4">${p.closed ? `Arrives ${fmt(p.atDoor)}, SAAQ closed` : p.pastClose ? `Can't finish before 16:30 (done ${fmt(p.done)})` : "No train back"}</td></tr>`).join("")
+  }</tbody>`;
+}
+
+function renderCurve() {
+  const box = $("curve"); box.innerHTML = "";
+  const W = Math.max(320, box.clientWidth - 16), H = 316, L = 44, R = 16, T = 30, B = 74;
+  const S0 = 5, S1 = 240;
+  const trains = RELEVANT.filter(o => o.arr + state.walk < CLOSE);
+  const series = trains.map(o => { const pts = []; for (let s = S0; s <= S1; s++) { const p = plan(o, s, state.walk, state.buf); pts.push(p.back ? p.waiting : null); } return { o, pts }; });
+  const env = [], who = [];
+  for (let k = 0; k <= S1 - S0; k++) {
+    let m = null, w = null;
+    series.forEach(sr => { const v = sr.pts[k]; if (v != null && (m == null || v < m)) { m = v; w = sr.o; } });
+    env.push(m); who.push(w);
+  }
+  const ymax = Math.ceil(Math.max(...env.filter(v => v != null), 60) / 30) * 30;
+  const sx = s => L + (s - S0) / (S1 - S0) * (W - L - R);
+  const sy = v => T + (1 - v / ymax) * (H - T - B);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Least waiting time as a function of time inside the SAAQ" }, box);
+  const cp = el("clipPath", { id: "plotclip" }, el("defs", {}, svg));
+  el("rect", { x: L, y: T - 4, width: W - L - R, height: H - T - B + 8 }, cp);
+  for (let v = 0; v <= ymax; v += 30) {
+    el("line", { x1: L, x2: W - R, y1: sy(v), y2: sy(v), stroke: v ? "var(--grid)" : "var(--axis)" }, svg);
+    txt(svg, L - 8, sy(v) + 4, `${v}`, { "text-anchor": "end", class: "t", "font-size": 11, fill: "var(--muted)" });
+  }
+  txt(svg, 6, 12, "min waiting", { "font-size": 11, fill: "var(--muted)" });
+  for (let s = 30; s <= S1; s += 30) {
+    txt(svg, sx(s), H - B + 16, s % 60 ? `${s}` : `${s / 60} h`, { "text-anchor": "middle", class: "t", "font-size": 11, fill: "var(--muted)" });
+  }
+  txt(svg, (L + W - R) / 2, H - B + 32, "minutes inside the SAAQ", { "text-anchor": "middle", "font-size": 11, fill: "var(--muted)" });
+  const path = pts => { let d = "", pen = false; pts.forEach((v, k) => { if (v == null) { pen = false; return; } d += `${pen ? "L" : "M"}${sx(S0 + k).toFixed(1)},${sy(v).toFixed(1)}`; pen = true; }); return d; };
+  // per-train lines, broken at the jumps
+  const jumpy = pts => pts.map((v, k) => (k && pts[k - 1] != null && v != null && v - pts[k - 1] > 5) ? null : v);
+  const plot = el("g", { "clip-path": "url(#plotclip)" }, svg);
+  series.forEach(sr => el("path", { d: path(jumpy(sr.pts)), fill: "none", stroke: "var(--axis)", "stroke-width": 1.25 }, plot));
+  el("path", { d: path(env), fill: "none", stroke: "var(--ride)", "stroke-width": 2.5, "stroke-linejoin": "round" }, plot);
+  // strip: which train is best
+  const sy0 = H - B + 44, sh = 16;
+  txt(svg, L - 8, sy0 + 12, "Best", { "text-anchor": "end", "font-size": 11, fill: "var(--muted)" });
+  let k0 = 0, shade = 0;
+  for (let k = 1; k <= who.length; k++) {
+    if (k === who.length || who[k] !== who[k0]) {
+      const a = sx(S0 + k0) , b = sx(S0 + k - 1) + (W - L - R) / (S1 - S0);
+      el("rect", { x: a, y: sy0, width: Math.max(1, Math.min(b, W - R) - a - 1), height: sh, rx: 3, fill: shade % 2 ? "var(--grid)" : "var(--open-band)", stroke: "var(--axis)", "stroke-width": .5 }, svg);
+      if (who[k0] && b - a > 38) txt(svg, (a + Math.min(b, W - R)) / 2, sy0 + 12, fmt(who[k0].dep), { "text-anchor": "middle", class: "t", "font-size": 11, fill: "var(--ink-2)" });
+      shade++; k0 = k;
+    }
+  }
+  // cursor
+  const ks = state.stay - S0, cur = env[ks];
+  el("line", { x1: sx(state.stay), x2: sx(state.stay), y1: T, y2: sy0 + sh, stroke: "var(--ink)", "stroke-width": 1, "stroke-dasharray": "3 3" }, svg);
+  if (cur != null) {
+    el("circle", { cx: sx(state.stay), cy: sy(cur), r: 5.5, fill: "var(--ride)", stroke: "var(--surface)", "stroke-width": 2 }, svg);
+    const right = sx(state.stay) < W - 140;
+    txt(svg, sx(state.stay) + (right ? 9 : -9), sy(cur) - 9, `${cur} min`, { "text-anchor": right ? "start" : "end", class: "t", "font-size": 12, "font-weight": 600, fill: "var(--ink)" });
+  }
+  // hover + click
+  const hl = el("line", { x1: 0, x2: 0, y1: T, y2: H - B, stroke: "var(--muted)", "stroke-width": 1, opacity: 0 }, svg);
+  const hit = el("rect", { x: L, y: T, width: W - L - R, height: sy0 + sh - T, fill: "transparent", style: "cursor:crosshair" }, svg);
+  const toStay = evt => { const r = svg.getBoundingClientRect(); const pt = evt.touches ? evt.touches[0] : evt; const xv = (pt.clientX - r.left) / r.width * W; return Math.max(S0, Math.min(S1, Math.round(S0 + (xv - L) / (W - L - R) * (S1 - S0)))); };
+  hit.addEventListener("mousemove", e => {
+    const s = toStay(e), k = s - S0; hl.setAttribute("x1", sx(s)); hl.setAttribute("x2", sx(s)); hl.setAttribute("opacity", 1);
+    showTip(env[k] == null ? `${dur(s)} inside: no option` : `<b>${dur(s)}</b> inside<br>Best: the <b>${fmt(who[k].dep)}</b> from Parc<br>${env[k]} min waiting`, e, box);
+  });
+  hit.addEventListener("mouseleave", () => { hl.setAttribute("opacity", 0); hideTip(); });
+  hit.addEventListener("click", e => { const s = Math.round(toStay(e) / 5) * 5; setState({ stay: Math.max(5, s) }); });
+}
+
+function renderTT() {
+  const rowsOut = OUT.filter(o => o.dep < 19 * 60).map(o => `<tr><td>${o.no}</td><td>${fmt(o.dep)}</td><td>${fmt(o.arr)}</td></tr>`).join("");
+  const rowsIn = IN.filter(i => i.dep > 7 * 60 && i.dep < 21 * 60).map(i => `<tr><td>${i.no}</td><td>${fmt(i.dep)}</td><td>${fmt(i.arr)}</td></tr>`).join("");
+  $("ttOut").innerHTML = `<caption class="eyebrow" style="text-align:left;padding-bottom:6px">Northbound, weekdays</caption><thead><tr><th>Train</th><th>Parc</th><th>Bois-de-B.</th></tr></thead><tbody>${rowsOut}</tbody>`;
+  $("ttIn").innerHTML = `<caption class="eyebrow" style="text-align:left;padding-bottom:6px">Southbound, weekdays</caption><thead><tr><th>Train</th><th>Bois-de-B.</th><th>Parc</th></tr></thead><tbody>${rowsIn}</tbody>`;
+}
+
+function render() {
+  $("stayVal").innerHTML = `${state.stay >= 60 ? dur(state.stay) : state.stay}<small>${state.stay >= 60 ? "" : "min"}</small>`;
+  $("walkVal").innerHTML = `${state.walk}<small>min</small>`;
+  $("bufVal").innerHTML = `${state.buf}<small>min</small>`;
+  const res = allPlans(state.stay, state.walk, state.buf);
+  renderAnswer(res); renderTimeline(res); renderTable(res); renderCurve();
+}
+function setState(patch) {
+  Object.assign(state, patch);
+  for (const k of ["stay", "walk", "buf"]) $(k).value = state[k];
+  try { localStorage.setItem("saaq-plan", JSON.stringify(state)); } catch (e) {}
+  render();
+}
+for (const k of ["stay", "walk", "buf"]) $(k).addEventListener("input", e => setState({ [k]: +e.target.value }));
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 120); });
+renderTT(); render();
+</script>
+</body>
+</html>
