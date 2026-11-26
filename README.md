@@ -20,6 +20,7 @@ its directory holds the built page.
 
 | Date | Tool |
 |------|------|
+| November 2026 | [Parc to SAAQ train planner](2026-11-parc-saaq-trains/): best exo line 12 train for a SAAQ visit; `build_timetable.py` re-extracts the times from exo's GTFS feed when the schedule changes (current data runs to 3 January 2027) |
 | November 2026 | [Barcode Contact Map](2026-11-barcode-contact-map/): viewer for linked-read barcode co-occurrence; [guide](2026-11-barcode-contact-map/guide.html) and `preprocess.py` alongside |
 | October 2026 | [Québec knowledge test prep](2026-10-quebec-knowledge-test/): interactive study guide |
 
